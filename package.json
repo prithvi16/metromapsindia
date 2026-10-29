@@ -13,13 +13,16 @@
     "preview": "vite preview",
     "start": "node server.js",
     "typecheck": "tsc --noEmit",
-    "data:fetch": "node scripts/fetch-osm-metro.mjs"
+    "data:fetch": "node scripts/fetch-rail.mjs",
+    "data:build": "node scripts/build-cities.mjs",
+    "data:refresh": "node scripts/fetch-rail.mjs && node scripts/build-cities.mjs"
   },
   "dependencies": {
     "express": "^5.3.0",
     "maplibre-gl": "^5.24.0",
     "react": "^19.3.1",
-    "react-dom": "^19.3.1"
+    "react-dom": "^19.3.1",
+    "react-router-dom": "^7.18.5"
   },
   "devDependencies": {
     "@types/geojson": "^7946.0.16",

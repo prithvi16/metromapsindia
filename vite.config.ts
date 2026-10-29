@@ -3,12 +3,6 @@ import { defineConfig } from "vite";
 
 export default defineConfig({
   plugins: [react()],
-  // Keep MapLibre out of the dependency pre-bundler: its worker is resolved with
-  // `new URL(..., import.meta.url)`, which only works when Vite sees the original
-  // source instead of a pre-bundled copy.
-  optimizeDeps: {
-    exclude: ["maplibre-gl"],
-  },
   server: {
     port: 5173,
     open: true,
