@@ -22,6 +22,8 @@ const MODE_NOTES: Record<string, string> = {
   suburban:
     "Commuter rail on the Indian Railways network, connecting suburbs to a city centre. Every suburban route is drawn as one solid teal line, with no per-line colours or overlays.",
   rrts: "Higher-speed regional rapid rail linking a metropolis with nearby cities.",
+  bullet_train:
+    "High-speed rail on a dedicated corridor, such as the under-construction Mumbai–Ahmedabad MAHSR.",
   monorail: "Single-beam elevated transit, used where a full metro will not fit.",
   light_rail: "Metrolite: lighter rolling stock, mostly fenced, cheaper than a metro.",
   tram: "Street-running rail; Kolkata’s is the only surviving system in India.",
@@ -75,7 +77,7 @@ export default function AboutPage() {
         <section>
           <h2>Modes</h2>
           <p>
-            “Urban rail” covers more than metro. The map distinguishes eight modes, each
+            “Urban rail” covers more than metro. The map distinguishes nine modes, each
             with its own stroke treatment.
           </p>
           <dl className="mode-list">

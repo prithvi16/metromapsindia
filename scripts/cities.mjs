@@ -1,6 +1,6 @@
 /**
- * City registry — the hand-maintained source of truth for the 25 systems in the
- * index (21 mapped + 4 under construction). `scripts/build-cities.mjs` merges
+ * City registry — the hand-maintained source of truth for the 26 systems in the
+ * index (22 mapped + 4 under construction). `scripts/build-cities.mjs` merges
  * this with the OSM/IRI fetches to produce src/data/cities/index.json.
  *
  * bounds: [west, south, east, north] — the metro region, not the municipal limit.
@@ -275,6 +275,24 @@ export const CITIES = [
     patterns: ["coimbatore metro", "kovai metro"],
     stats: { lines: 2, stations: 40, km: 73, opened: "TBD", ridership: null },
   },
+  {
+    slug: "mumbai-ahmedabad",
+    city: "Mumbai–Ahmedabad",
+    system: "Mumbai–Ahmedabad High Speed Rail",
+    operator: "NHSRCL",
+    region: "West",
+    bounds: [72.55, 18.95, 73.25, 23.15],
+    // OSM relation for the corridor; fetch-rail.mjs queries it directly.
+    osmRelation: 8304354,
+    // Relation 8304354 carries both up/down alignments plus a fence way. Use
+    // the continuous northbound chain only so the line does not double back.
+    alignmentWays: [
+      916108435, 1125530002, 1125530005, 1487001679, 1487001682, 761703159,
+      1125530004, 849474580, 1125530000,
+    ],
+    patterns: ["mumbai.{0,4}ahmedabad", "nhsrcl", "bullet train", "high.speed rail"],
+    stats: { lines: 1, stations: 12, km: 508.18, opened: "2029", ridership: null },
+  },
 ];
 
 /** Modes in display order, with the label and stroke sample used by the legend. */
@@ -282,6 +300,7 @@ export const MODES = [
   { id: "metro", label: "Metro" },
   { id: "suburban", label: "Suburban rail" },
   { id: "rrts", label: "Regional rapid rail" },
+  { id: "bullet_train", label: "Bullet train" },
   { id: "monorail", label: "Monorail" },
   { id: "light_rail", label: "Light rail" },
   { id: "tram", label: "Tram" },

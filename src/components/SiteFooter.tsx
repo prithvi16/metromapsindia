@@ -6,6 +6,7 @@ const MODE_HINTS: Record<string, string> = {
   metro: "High capacity",
   suburban: "Commuter rail",
   rrts: "160 km/h",
+  bullet_train: "320 km/h",
   monorail: "Single beam",
   light_rail: "Metrolite",
   tram: "Street level",
@@ -50,7 +51,8 @@ export default function SiteFooter() {
             {new Set(cityIndex.cities.map((c) => c.region)).size} regions — the third
             longest network in the world. It began with suburban rail in Mumbai in 1853
             and the first metro in Kolkata in 1984, and now spans metro, suburban rail,
-            monorail, light rail, regional rapid rail, trams and funiculars.
+            monorail, light rail, regional rapid rail, high-speed rail, trams and
+            funiculars.
           </p>
           <p>
             Metro and light-rail lines come from OpenStreetMap; suburban routes come

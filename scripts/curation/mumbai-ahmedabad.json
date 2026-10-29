@@ -1,0 +1,33 @@
+{
+  "checkedAt": "2026-10-29",
+  "sources": [
+    "https://www.openstreetmap.org/relation/8304354",
+    "https://en.wikipedia.org/wiki/Mumbai%E2%80%93Ahmedabad_high-speed_rail_corridor"
+  ],
+  "lines": [
+    {
+      "match": { "nameIncludes": "high-speed" },
+      "status": "under-construction",
+      "colour": "#d97706",
+      "from": "Mumbai BKC",
+      "to": "Sabarmati",
+      "stationsMode": "replace",
+      "confidence": "high",
+      "notes": "Corridor geometry from OSM relation 8304354. Station list from the Wikipedia route diagram (12 stations; Surat-Bilimora planned 2027, full line 2029). Points are snapped to the OSM alignment because the HSR stations are not individually mapped; town station coordinates are several km off the alignment.",
+      "stations": [
+        { "name": "Mumbai BKC", "lat": 19.06656, "lon": 72.8631 },
+        { "name": "Thane", "lat": 19.23928, "lon": 73.02775 },
+        { "name": "Virar", "lat": 19.475247, "lon": 72.832999 },
+        { "name": "Boisar", "lat": 19.69005, "lon": 72.78813 },
+        { "name": "Vapi", "lat": 20.36844, "lon": 72.96072 },
+        { "name": "Bilimora", "lat": 20.80248, "lon": 73.01539 },
+        { "name": "Surat", "lat": 21.161641, "lon": 72.930953 },
+        { "name": "Bharuch", "lat": 21.70437, "lon": 72.95103 },
+        { "name": "Vadodara", "lat": 22.31158, "lon": 73.18108 },
+        { "name": "Anand/Nadiad", "lat": 22.57711, "lon": 72.98196 },
+        { "name": "Ahmedabad", "lat": 23.02267, "lon": 72.60247 },
+        { "name": "Sabarmati", "lat": 23.08144, "lon": 72.58529 }
+      ]
+    }
+  ]
+}

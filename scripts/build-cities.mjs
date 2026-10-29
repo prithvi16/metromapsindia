@@ -21,6 +21,7 @@ const MODE_COLOURS = {
   metro: "#e11d48",
   suburban: "#0f766e",
   rrts: "#7c3aed",
+  bullet_train: "#d97706",
   monorail: "#ea580c",
   light_rail: "#2563eb",
   tram: "#b45309",
@@ -86,6 +87,7 @@ function colourFor(tags, mode) {
 function modeFor(tags) {
   const net = `${tags.network ?? ""} ${tags.name ?? ""}`;
   if (/\b(rrts|rapidx|namo bharat|rapid rail)\b/i.test(net)) return "rrts";
+  if (/\b(bullet|high[- ]speed|hsr|nhsrcl)\b/i.test(net)) return "bullet_train";
   const route =
     tags.route === "construction"
       ? (tags.construction ?? tags["construction:route"] ?? "")
@@ -111,11 +113,13 @@ function statusFor(tags) {
 }
 
 /** Join the ordered way members of a route relation into one polyline. */
-function stitchGeometry(relation, ways, nodes) {
+function stitchGeometry(relation, ways, nodes, onlyWays) {
+  const refs = onlyWays
+    ? onlyWays.map(Number)
+    : relation.members.filter((member) => member.type === "way").map((member) => member.ref);
   const segments = [];
-  for (const member of relation.members) {
-    if (member.type !== "way") continue;
-    const way = ways.get(member.ref);
+  for (const ref of refs) {
+    const way = ways.get(ref);
     if (!way?.nodes) continue;
     const coords = way.nodes
       .map((id) => nodes.get(id))
@@ -286,13 +290,14 @@ function mercator(lat, lon) {
 const PREVIEW_MODES = new Set(["metro", "monorail", "light_rail", "tram", "funicular", "water_metro"]);
 
 function buildPreview(lines, width = 132, height = 84, pad = 6) {
-  const operational = lines.filter(
-    (l) => l.status === "operational" && l.geometry.some((segment) => segment.length > 1),
-  );
+  const drawable = lines.filter((l) => l.geometry.some((segment) => segment.length > 1));
+  const operational = drawable.filter((l) => l.status === "operational");
+  // A corridor that is entirely under construction still deserves a sketch.
+  const base = operational.length ? operational : drawable;
   // City cards are titled after the metro system, so keep long-distance
   // suburban/RRTS corridors out of the sketch and let the metro shape read.
-  const core = operational.filter((line) => PREVIEW_MODES.has(line.mode));
-  const usable = core.length ? core : operational;
+  const core = base.filter((line) => PREVIEW_MODES.has(line.mode));
+  const usable = core.length ? core : base;
   if (!usable.length) return null;
 
   const projected = usable.flatMap((line) =>
@@ -619,7 +624,7 @@ async function main() {
       }
       const tags = rel.tags ?? {};
       const mode = modeFor(tags);
-      const geometry = stitchGeometry(rel, ways, nodes);
+      const geometry = stitchGeometry(rel, ways, nodes, city.alignmentWays);
       if (geometry.length === 0) continue;
 
       const rawStops = rel.members
@@ -817,8 +822,10 @@ async function main() {
         lines: lines.length,
         stations: stations.length,
         km: Number(
-          lines
-            .filter((l) => l.status === "operational")
+          (lines.some((l) => l.status === "operational")
+            ? lines.filter((l) => l.status === "operational")
+            : lines
+          )
             .reduce((sum, l) => sum + lineLength(l.geometry), 0)
             .toFixed(1),
         ),

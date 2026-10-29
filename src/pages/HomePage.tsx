@@ -11,7 +11,7 @@ const REGION_TABS = ["All", "North", "West", "South", "East"] as const;
 export default function HomePage() {
   usePageMeta(
     "MetroMaps India — India's urban rail atlas",
-    `${countryStats.systems} systems across ${countryStats.cities} cities: ${countryStats.lines} metro, suburban, monorail, tram and RRTS lines on one map.`,
+    `${countryStats.systems} systems across ${countryStats.cities} cities: ${countryStats.lines} metro, suburban, monorail, tram, RRTS and bullet-train lines on one map.`,
   );
   const [params, setParams] = useSearchParams();
   const requested = params.get("region");
@@ -35,14 +35,15 @@ export default function HomePage() {
       <main className="home">
         <section className="hero">
           <p className="hero__eyebrow">India · urban rail</p>
-          <h1>India’s metro, monorail and suburban lines, on one map.</h1>
+          <h1>India’s metro, suburban and bullet-train lines, on one map.</h1>
           <p className="hero__lede">
             {countryStats.systems} systems across {countryStats.cities} mapped cities —{" "}
             {countryStats.lines} lines, {countryStats.stations.toLocaleString("en-IN")} mapped
             stations and {countryStats.km.toLocaleString("en-IN")} line-km — with{" "}
             {countryStats.listed - countryStats.cities} more planned systems on the way.
-            Metro from OpenStreetMap, suburban from the India Rail Info atlas. Filter by
-            mode, jump between cities, and see what is running, building and planned.
+            Metro and bullet train from OpenStreetMap, suburban from the India Rail Info
+            atlas. Filter by mode, jump between cities, and see what is running, building
+            and planned.
           </p>
 
           <dl className="hero__stats">

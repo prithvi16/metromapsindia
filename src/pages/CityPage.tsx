@@ -238,7 +238,9 @@ export default function CityPage() {
               <dd>{summary.counts.km.toFixed(1)} km</dd>
             </div>
             <div>
-              <dt>Since</dt>
+              <dt>
+                {new Date(summary.stats.opened).getTime() > Date.now() ? "Opening" : "Since"}
+              </dt>
               <dd>{summary.stats.opened.slice(0, 4)}</dd>
             </div>
             {summary.stats.ridership && (
@@ -322,16 +324,17 @@ export default function CityPage() {
           <div>
             <h2>About this network</h2>
             <p>
-              {city?.lines.length ?? summary.counts.lines} mapped lines serving{" "}
+              {city?.lines.length ?? summary.counts.lines} mapped{" "}
+              {(city?.lines.length ?? summary.counts.lines) === 1 ? "line" : "lines"} serving{" "}
               {city?.stations.length ?? summary.counts.stations} stations across{" "}
               {summary.counts.modes.map((mode) => MODE_META[mode].label).join(", ") || "—"}.
               Zoom out to see neighbouring networks, or click another city's line to open
               it. The layer panel switches modes and statuses on and off.
             </p>
             <p className="city-page__official">
-              Official {summary.system} figures: {summary.stats.lines} lines,{" "}
-              {summary.stats.stations} stations and {summary.stats.km.toFixed(1)} km
-              (Wikipedia, October 2026).
+              Official {summary.system} figures: {summary.stats.lines}{" "}
+              {summary.stats.lines === 1 ? "line" : "lines"}, {summary.stats.stations}{" "}
+              stations and {summary.stats.km.toFixed(1)} km (Wikipedia, October 2026).
             </p>
             {summary.coverage === "partial" && (
               <p className="notice">

@@ -4,6 +4,7 @@ export type Mode =
   | "metro"
   | "suburban"
   | "rrts"
+  | "bullet_train"
   | "monorail"
   | "light_rail"
   | "tram"
@@ -109,6 +110,7 @@ export const MODE_META: Record<
   // per-line colour): the whole commuter network reads as a single layer.
   suburban: { label: "Suburban rail", short: "Suburban", width: 4 },
   rrts: { label: "Regional rapid rail", short: "RRTS", width: 6.5 },
+  bullet_train: { label: "Bullet train", short: "Bullet", width: 6 },
   monorail: { label: "Monorail", short: "Monorail", width: 4, overlay: [1.2, 2.2] },
   light_rail: { label: "Light rail", short: "Light rail", width: 4, overlay: [3, 3] },
   tram: { label: "Tram", short: "Tram", width: 3.2, overlay: [1.5, 1.5] },
@@ -120,6 +122,7 @@ export const MODE_ORDER: Mode[] = [
   "metro",
   "suburban",
   "rrts",
+  "bullet_train",
   "monorail",
   "light_rail",
   "tram",

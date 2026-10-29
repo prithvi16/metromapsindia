@@ -1,9 +1,9 @@
 # MetroMaps India
 
-An interactive atlas of urban rail in India — metro, suburban rail, monorail, light
-rail, regional rapid rail, trams and funiculars. Metro and light-rail lines come
-from OpenStreetMap; suburban networks are imported from the India Rail Info atlas
-and drawn as one uniform teal line.
+An interactive atlas of rail in India — metro, suburban rail, monorail, light rail,
+regional rapid rail, high-speed (bullet train), trams and funiculars. Metro,
+light-rail and bullet-train lines come from OpenStreetMap; suburban networks are
+imported from the India Rail Info atlas and drawn as one uniform teal line.
 
 - **Home page:** every city in the index, with a generated SVG sketch of its network and
   headline stats. Mapped totals and official Wikipedia figures are labelled separately.
@@ -22,7 +22,7 @@ and drawn as one uniform teal line.
 | Basemap | [OpenFreeMap](https://openfreemap.org) Positron — vector tiles, no API key |
 | Renderer | MapLibre GL JS 5 |
 | App | React 19 + TypeScript + Vite 8, `react-router-dom` |
-| Data | OpenStreetMap via Overpass + India Rail Info atlas for suburban, pre-built into per-city JSON |
+| Data | OpenStreetMap via Overpass (incl. the MAHSR corridor) + India Rail Info atlas for suburban, pre-built into per-city JSON |
 | Server | Express static server with SPA fallback |
 
 ## Getting started
@@ -88,7 +88,7 @@ Each city's lines are a GeoJSON source on top of the basemap — never baked int
 so stations stay at exact coordinates and every line can be styled and filtered
 independently.
 
-Two visual channels keep eight modes readable at once:
+Two visual channels keep nine modes readable at once:
 
 - **Dash pattern = status** — solid operational, dashed under construction, dotted planned.
 - **Width, casing and overlay = mode** — RRTS is widest with a white centre stripe,
@@ -145,6 +145,11 @@ npm run data:refresh
    suburban relations and appends the IRI network. Every suburban line is forced to
    one colour (`#0f766e`) and one solid stroke, so the commuter network reads as a
    single layer.
+7. **High-speed corridor** — the Mumbai–Ahmedabad MAHSR is fetched directly from
+   OSM relation 8304354 (`osmRelation` in `cities.mjs`), pinned to its continuous
+   northbound way chain (`alignmentWays`), and given its under-construction status
+   and 12-station list by `scripts/curation/mumbai-ahmedabad.json`. It renders in
+   the separate `bullet_train` mode.
 
 ### Cleaning up the data
 
@@ -232,5 +237,7 @@ No tile keys or environment variables are required.
 - Suburban linework and station coordinates © India Rail Info (atlas), used here with
   attribution. The atlas has no open-data licence; permission is required before
   redistributing derived data publicly.
+- Mumbai–Ahmedabad HSR alignment from OpenStreetMap relation 8304354; station list
+  and opening dates from Wikipedia's Mumbai–Ahmedabad high-speed rail corridor page.
 - Basemap © OpenFreeMap, built on OpenMapTiles.
 - Network figures and history from Wikipedia, CC BY-SA 4.0.

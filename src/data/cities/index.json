@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-29T16:11:49.206Z",
+  "generatedAt": "2026-10-29T16:51:28.265Z",
   "source": "OpenStreetMap contributors, ODbL 1.0 (via Overpass API)",
   "cities": [
     {
@@ -1407,6 +1407,50 @@
         "systemNames": []
       },
       "preview": null
+    },
+    {
+      "slug": "mumbai-ahmedabad",
+      "city": "Mumbai–Ahmedabad",
+      "system": "Mumbai–Ahmedabad High Speed Rail",
+      "operator": "NHSRCL",
+      "region": "West",
+      "bounds": [
+        72.5259,
+        18.7843,
+        73.224,
+        23.3815
+      ],
+      "minZoom": 7.5,
+      "stats": {
+        "lines": 1,
+        "stations": 12,
+        "km": 508.18,
+        "opened": "2029",
+        "ridership": null
+      },
+      "coverage": "full",
+      "counts": {
+        "lines": 1,
+        "stations": 12,
+        "km": 510.9,
+        "modes": [
+          "bullet_train"
+        ],
+        "systems": 1,
+        "systemNames": [
+          "Mumbai–Ahmedabad High Speed Rail"
+        ]
+      },
+      "preview": {
+        "width": 132,
+        "height": 84,
+        "paths": [
+          {
+            "colour": "#d97706",
+            "d": "M65.8 78.0 L69.2 76.0 L65.8 72.6 L64.6 67.0 L64.8 62.5 L67.4 55.2 L68.4 47.1 L66.8 42.4 L67.2 29.6 L71.1 20.2 L67.1 14.6 L65.0 13.4 L60.9 6.0"
+          }
+        ]
+      }
     }
   ]
 }

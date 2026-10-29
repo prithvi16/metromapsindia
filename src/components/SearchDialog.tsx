@@ -70,7 +70,15 @@ export default function SearchDialog({
 
     const out: Result[] = [];
     for (const city of cityIndex.cities) {
-      if (city.city.toLowerCase().includes(q) || city.system.toLowerCase().includes(q)) {
+      const cityModes = city.counts.modes
+        .map((mode) => `${MODE_META[mode].label} ${MODE_META[mode].short}`)
+        .join(" ")
+        .toLowerCase();
+      if (
+        city.city.toLowerCase().includes(q) ||
+        city.system.toLowerCase().includes(q) ||
+        cityModes.includes(q)
+      ) {
         out.push({
           kind: "city",
           label: city.city,
@@ -82,7 +90,8 @@ export default function SearchDialog({
 
     if (data) {
       for (const line of data.lines) {
-        const haystack = `${line.name} ${line.ref ?? ""} ${line.system} ${line.from ?? ""} ${line.to ?? ""}`.toLowerCase();
+        const haystack =
+          `${line.name} ${line.ref ?? ""} ${line.system} ${line.from ?? ""} ${line.to ?? ""} ${MODE_META[line.mode].label} ${MODE_META[line.mode].short}`.toLowerCase();
         if (!haystack.includes(q)) continue;
         out.push({
           kind: "line",
@@ -92,7 +101,9 @@ export default function SearchDialog({
         });
       }
       for (const station of data.stations) {
-        if (!station.name.toLowerCase().includes(q)) continue;
+        const stationHaystack =
+          `${station.name} ${station.modes.map((mode) => MODE_META[mode].label).join(" ")}`.toLowerCase();
+        if (!stationHaystack.includes(q)) continue;
         out.push({
           kind: "station",
           label: station.name,

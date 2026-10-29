@@ -19,8 +19,11 @@ const onlyArg = args.find((a) => a.startsWith("--only="));
 const only = onlyArg ? new Set(onlyArg.slice("--only=".length).split(",")) : null;
 const force = args.includes("--force");
 
-function queryFor(bounds) {
-  const [west, south, east, north] = bounds;
+function queryFor(city) {
+  if (city.osmRelation) {
+    return `[out:json][timeout:120];rel(${city.osmRelation});(._;>;);out body;`;
+  }
+  const [west, south, east, north] = city.bounds;
   const bbox = `${south},${west},${north},${east}`;
   return `[out:json][timeout:240];
 (
@@ -49,7 +52,7 @@ async function main() {
     }
     console.log(`\n${city.city} (${city.slug})`);
     try {
-      const data = await cachedQuery(cachePath, queryFor(city.bounds), {
+      const data = await cachedQuery(cachePath, queryFor(city), {
         label: city.slug,
       });
       console.log(`  ${data.elements?.length ?? 0} elements`);
