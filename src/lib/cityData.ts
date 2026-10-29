@@ -1,24 +1,41 @@
-import type { CityData, CityIndex, CitySummary } from "./cities";
+import type { AllData, CityData, CityIndex, CitySummary } from "./cities";
 import indexJson from "../data/cities/index.json";
 
 export const cityIndex = indexJson as unknown as CityIndex;
 
-/** Every city file, kept out of the initial bundle and loaded on demand. */
-const cityModules = import.meta.glob<{ default: CityData }>([
-  "../data/cities/*.json",
-  "!../data/cities/index.json",
-]);
+/**
+ * Every city's lines and stations live in one dataset so the map can show
+ * neighbouring networks when you zoom out. It is a single lazy chunk, fetched
+ * once per session.
+ */
+let allPromise: Promise<AllData> | null = null;
+
+export function loadAll(): Promise<AllData> {
+  allPromise ??= import("../data/cities/all.json").then(
+    (module) => module.default as unknown as AllData,
+  );
+  return allPromise;
+}
+
+export async function loadCityView(
+  slug: string,
+): Promise<{ city: CityData; all: AllData }> {
+  const summary = findCity(slug);
+  if (!summary) throw new Error(`Unknown city "${slug}"`);
+
+  const all = await loadAll();
+  return {
+    city: {
+      ...summary,
+      lines: all.lines.filter((line) => line.city === slug),
+      stations: all.stations.filter((station) => station.city === slug),
+    },
+    all,
+  };
+}
 
 export function findCity(slug: string | undefined): CitySummary | undefined {
   return cityIndex.cities.find((city) => city.slug === slug);
-}
-
-export async function loadCity(slug: string): Promise<CityData> {
-  const key = `../data/cities/${slug}.json`;
-  const loader = cityModules[key];
-  if (!loader) throw new Error(`No dataset for "${slug}"`);
-  const module = await loader();
-  return module.default;
 }
 
 export function citiesByRegion() {

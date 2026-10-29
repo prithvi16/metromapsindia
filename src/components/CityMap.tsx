@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Map as MapLibreMap,
   NavigationControl,
@@ -8,10 +9,18 @@ import {
   type FilterSpecification,
   type MapLayerMouseEvent,
 } from "maplibre-gl";
-import type { CityData, Mode, Status } from "../lib/cities";
+import type { AllData, CityData, CitySummary, Mode, Status } from "../lib/cities";
 import { linesGeoJson, stationsGeoJson } from "../lib/cities";
+import { cityIndex } from "../lib/cityData";
 
 const STYLE_URL = "https://tiles.openfreemap.org/styles/positron";
+
+/** Zoomed all the way out you still see India, not the world. */
+const NATIONAL_MIN_ZOOM = 4.6;
+const INDIA_BOUNDS: [[number, number], [number, number]] = [
+  [67, 5],
+  [98, 37],
+];
 
 const CASING = "rail-casing";
 const STATUS_LAYERS: Record<Status, string> = {
@@ -28,20 +37,25 @@ const OVERLAY_LAYERS: { mode: Mode; id: string; dash: number[] }[] = [
 ];
 const RRTS_CORE = "rail-rrts-core";
 const STATIONS = "rail-stations";
+const STATIONS_OTHER = "rail-stations-other";
 const STATION_DOTS = "rail-station-dots";
 const LABELS = "rail-station-labels";
+const LABELS_OTHER = "rail-station-labels-other";
 
 type Props = {
   city: CityData;
+  all: AllData;
   visibleModes: Mode[];
   visibleStatuses: Status[];
   hiddenLines: string[];
 };
 
-export default function CityMap({ city, visibleModes, visibleStatuses, hiddenLines }: Props) {
+export default function CityMap({ city, all, visibleModes, visibleStatuses, hiddenLines }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
+  const navigate = useNavigate();
   const [ready, setReady] = useState(false);
+  const [nearby, setNearby] = useState<CitySummary | null>(null);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -55,15 +69,15 @@ export default function CityMap({ city, visibleModes, visibleStatuses, hiddenLin
         [east, north],
       ],
       fitBoundsOptions: { padding: 40, maxZoom: 12.5 },
-      minZoom: city.minZoom,
+      minZoom: NATIONAL_MIN_ZOOM,
       maxZoom: 18,
-      maxBounds: [
-        [west - 0.25, south - 0.25],
-        [east + 0.25, north + 0.25],
-      ],
+      maxBounds: INDIA_BOUNDS,
       attributionControl: { compact: true },
     });
     mapRef.current = map;
+    if (import.meta.env.DEV) {
+      (window as unknown as { __map?: MapLibreMap }).__map = map;
+    }
 
     map.on("error", (event) => {
       console.error("Map error:", event.error?.message ?? event);
@@ -72,12 +86,30 @@ export default function CityMap({ city, visibleModes, visibleStatuses, hiddenLin
     map.addControl(new NavigationControl({ showCompass: false }), "bottom-right");
     map.addControl(new ScaleControl({ maxWidth: 120, unit: "metric" }), "bottom-left");
 
+    const updateNearby = () => {
+      if (map.getZoom() > 11.2) {
+        setNearby(null);
+        return;
+      }
+      const center = map.getCenter();
+      const hit = cityIndex.cities.find((candidate) => {
+        if (candidate.slug === city.slug) return false;
+        const [w, s, e, n] = candidate.bounds;
+        return center.lng >= w && center.lng <= e && center.lat >= s && center.lat <= n;
+      });
+      setNearby(hit ?? null);
+    };
+    map.on("moveend", updateNearby);
+
     map.on("load", () => {
-      const stationMinZoom = Math.max(8.5, city.minZoom - 0.2);
-      map.addSource("rail-lines", { type: "geojson", data: linesGeoJson(city.lines) });
+      const isActive = ["==", ["get", "city"], city.slug] as unknown as ExpressionSpecification;
+      const fade = (active: number, other: number) =>
+        ["case", isActive, active, other] as unknown as ExpressionSpecification;
+
+      map.addSource("rail-lines", { type: "geojson", data: linesGeoJson(all.lines) });
       map.addSource("rail-stations", {
         type: "geojson",
-        data: stationsGeoJson(city.stations, city.lines),
+        data: stationsGeoJson(all.stations, all.lines),
       });
 
       const width = [
@@ -85,11 +117,11 @@ export default function CityMap({ city, visibleModes, visibleStatuses, hiddenLin
         ["linear"],
         ["zoom"],
         9,
-        ["*", ["get", "w"], 0.5],
+        ["*", ["get", "w"], ["case", isActive, 0.55, 0.4]],
         13,
-        ["get", "w"],
+        ["*", ["get", "w"], ["case", isActive, 1, 0.8]],
         17,
-        ["*", ["get", "w"], 1.8],
+        ["*", ["get", "w"], ["case", isActive, 1.8, 1.3]],
       ] as unknown as ExpressionSpecification;
 
       const casingWidth = [
@@ -97,11 +129,11 @@ export default function CityMap({ city, visibleModes, visibleStatuses, hiddenLin
         ["linear"],
         ["zoom"],
         9,
-        ["+", ["*", ["get", "w"], 0.5], 3],
+        ["+", ["*", ["get", "w"], ["case", isActive, 0.55, 0.4]], 2.4],
         13,
-        ["+", ["get", "w"], 3],
+        ["+", ["*", ["get", "w"], ["case", isActive, 1, 0.8]], 3],
         17,
-        ["+", ["*", ["get", "w"], 1.8], 3],
+        ["+", ["*", ["get", "w"], ["case", isActive, 1.8, 1.3]], 3],
       ] as unknown as ExpressionSpecification;
 
       map.addLayer({
@@ -112,7 +144,7 @@ export default function CityMap({ city, visibleModes, visibleStatuses, hiddenLin
         paint: {
           "line-color": "#ffffff",
           "line-width": casingWidth,
-          "line-opacity": 0.92,
+          "line-opacity": fade(0.92, 0.3),
         },
       });
 
@@ -122,7 +154,11 @@ export default function CityMap({ city, visibleModes, visibleStatuses, hiddenLin
         source: "rail-lines",
         filter: ["==", ["get", "status"], "operational"],
         layout: { "line-join": "round", "line-cap": "round" },
-        paint: { "line-color": ["get", "colour"], "line-width": width },
+        paint: {
+          "line-color": ["get", "colour"],
+          "line-width": width,
+          "line-opacity": fade(1, 0.3),
+        },
       });
 
       map.addLayer({
@@ -135,6 +171,7 @@ export default function CityMap({ city, visibleModes, visibleStatuses, hiddenLin
           "line-color": ["get", "colour"],
           "line-width": width,
           "line-dasharray": [2, 1.4],
+          "line-opacity": fade(1, 0.3),
         },
       });
 
@@ -148,11 +185,10 @@ export default function CityMap({ city, visibleModes, visibleStatuses, hiddenLin
           "line-color": ["get", "colour"],
           "line-width": width,
           "line-dasharray": [0.8, 1.8],
-          "line-opacity": 0.6,
+          "line-opacity": fade(0.6, 0.2),
         },
       });
 
-      // White centre stripe marks regional rapid rail.
       map.addLayer({
         id: RRTS_CORE,
         type: "line",
@@ -162,11 +198,10 @@ export default function CityMap({ city, visibleModes, visibleStatuses, hiddenLin
         paint: {
           "line-color": "#ffffff",
           "line-width": ["interpolate", ["linear"], ["zoom"], 9, 1, 13, 1.6, 17, 2.6],
-          "line-opacity": 0.9,
+          "line-opacity": fade(0.9, 0.3),
         },
       });
 
-      // Segmented / dotted overlays give each non-metro mode a distinct texture.
       for (const overlay of OVERLAY_LAYERS) {
         map.addLayer({
           id: overlay.id,
@@ -182,7 +217,7 @@ export default function CityMap({ city, visibleModes, visibleStatuses, hiddenLin
             "line-color": "#ffffff",
             "line-width": ["interpolate", ["linear"], ["zoom"], 9, 0.8, 13, 1.3, 17, 2.2],
             "line-dasharray": overlay.dash,
-            "line-opacity": 0.85,
+            "line-opacity": fade(0.85, 0.3),
           },
         });
       }
@@ -191,14 +226,15 @@ export default function CityMap({ city, visibleModes, visibleStatuses, hiddenLin
         id: STATIONS,
         type: "circle",
         source: "rail-stations",
-        minzoom: stationMinZoom,
+        minzoom: 9,
+        filter: ["==", ["get", "city"], city.slug],
         paint: {
           "circle-radius": [
             "interpolate",
             ["linear"],
             ["zoom"],
-            10.5,
-            ["case", ["get", "interchange"], 3, 2.2],
+            9,
+            ["case", ["get", "interchange"], 2.6, 2],
             13,
             ["case", ["get", "interchange"], 5.5, 4],
             16,
@@ -210,8 +246,8 @@ export default function CityMap({ city, visibleModes, visibleStatuses, hiddenLin
             "interpolate",
             ["linear"],
             ["zoom"],
-            10.5,
-            ["case", ["get", "interchange"], 2, 1.6],
+            9,
+            ["case", ["get", "interchange"], 1.8, 1.4],
             14,
             ["case", ["get", "interchange"], 3, 2.4],
           ],
@@ -219,13 +255,28 @@ export default function CityMap({ city, visibleModes, visibleStatuses, hiddenLin
       });
 
       map.addLayer({
+        id: STATIONS_OTHER,
+        type: "circle",
+        source: "rail-stations",
+        minzoom: 11,
+        filter: ["!=", ["get", "city"], city.slug],
+        paint: {
+          "circle-radius": ["interpolate", ["linear"], ["zoom"], 11, 1.8, 14, 3, 17, 4.5],
+          "circle-color": "#ffffff",
+          "circle-stroke-color": ["get", "colour"],
+          "circle-stroke-width": 1.4,
+          "circle-opacity": 0.7,
+        },
+      });
+
+      map.addLayer({
         id: STATION_DOTS,
         type: "circle",
         source: "rail-stations",
-        minzoom: stationMinZoom,
-        filter: ["==", ["get", "interchange"], true],
+        minzoom: 9,
+        filter: ["all", ["==", ["get", "interchange"], true], ["==", ["get", "city"], city.slug]],
         paint: {
-          "circle-radius": ["interpolate", ["linear"], ["zoom"], 10.5, 1, 14, 2.2, 16, 3],
+          "circle-radius": ["interpolate", ["linear"], ["zoom"], 9, 1, 14, 2.2, 16, 3],
           "circle-color": ["get", "colour"],
         },
       });
@@ -235,6 +286,7 @@ export default function CityMap({ city, visibleModes, visibleStatuses, hiddenLin
         type: "symbol",
         source: "rail-stations",
         minzoom: 13,
+        filter: ["==", ["get", "city"], city.slug],
         layout: {
           "text-field": ["get", "name"],
           "text-size": ["interpolate", ["linear"], ["zoom"], 13, 10, 16, 12],
@@ -251,7 +303,54 @@ export default function CityMap({ city, visibleModes, visibleStatuses, hiddenLin
         },
       });
 
+      map.addLayer({
+        id: LABELS_OTHER,
+        type: "symbol",
+        source: "rail-stations",
+        minzoom: 13.5,
+        filter: ["!=", ["get", "city"], city.slug],
+        layout: {
+          "text-field": ["get", "name"],
+          "text-size": 10,
+          "text-offset": [0, 0.9],
+          "text-anchor": "top",
+          "text-font": ["Noto Sans Regular"],
+          "text-padding": 2,
+          "text-allow-overlap": false,
+        },
+        paint: {
+          "text-color": "#475569",
+          "text-halo-color": "rgba(255,255,255,0.9)",
+          "text-halo-width": 1.4,
+          "text-opacity": 0.8,
+        },
+      });
+
       const popup = new Popup({ closeButton: false, offset: 10, className: "station-popup" });
+
+      for (const status of Object.keys(STATUS_LAYERS) as Status[]) {
+        map.on("click", STATUS_LAYERS[status], (event: MapLayerMouseEvent) => {
+          const feature = event.features?.[0];
+          if (!feature) return;
+          const props = feature.properties ?? {};
+          const slug = String(props.city ?? "");
+          if (slug && slug !== city.slug) {
+            navigate(`/city/${slug}`);
+            return;
+          }
+          const geometry = feature.geometry;
+          if (!geometry || geometry.type !== "MultiLineString") return;
+          const first = geometry.coordinates[0]?.[0];
+          if (!first) return;
+          popup
+            .setLngLat([first[0], first[1]])
+            .setHTML(
+              `<strong>${escapeHtml(String(props.name))}</strong>` +
+                `<span class="station-popup__lines">${escapeHtml(String(props.system ?? ""))}</span>`,
+            )
+            .addTo(map);
+        });
+      }
 
       map.on("click", STATIONS, (event: MapLayerMouseEvent) => {
         const feature = event.features?.[0];
@@ -269,7 +368,12 @@ export default function CityMap({ city, visibleModes, visibleStatuses, hiddenLin
           .addTo(map);
       });
 
-      for (const layer of [STATIONS, LABELS]) {
+      map.on("click", STATIONS_OTHER, (event: MapLayerMouseEvent) => {
+        const slug = String(event.features?.[0]?.properties?.city ?? "");
+        if (slug) navigate(`/city/${slug}`);
+      });
+
+      for (const layer of [STATUS_LAYERS.operational, STATIONS, LABELS, STATIONS_OTHER]) {
         map.on("mouseenter", layer, () => {
           map.getCanvas().style.cursor = "pointer";
         });
@@ -279,6 +383,7 @@ export default function CityMap({ city, visibleModes, visibleStatuses, hiddenLin
       }
 
       setReady(true);
+      updateNearby();
     });
 
     return () => {
@@ -286,7 +391,7 @@ export default function CityMap({ city, visibleModes, visibleStatuses, hiddenLin
       mapRef.current = null;
       setReady(false);
     };
-  }, [city]);
+  }, [city, all, navigate]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -302,12 +407,9 @@ export default function CityMap({ city, visibleModes, visibleStatuses, hiddenLin
         ? null
         : (["!", ["in", ["get", "id"], ["literal", hiddenLines]]] as unknown as ExpressionSpecification);
 
-    const statusCondition = (status: Status) =>
-      ["==", ["get", "status"], status] as ExpressionSpecification;
-
     const lineFilter = (status: Status): FilterSpecification | null => {
       if (!visibleStatuses.includes(status) || visibleModes.length === 0) return null;
-      const parts: ExpressionSpecification[] = [statusCondition(status)];
+      const parts: ExpressionSpecification[] = [["==", ["get", "status"], status]];
       if (modeCondition) parts.push(modeCondition);
       if (hiddenLineCondition) parts.push(hiddenLineCondition);
       return (parts.length === 1 ? parts[0] : ["all", ...parts]) as FilterSpecification;
@@ -322,22 +424,20 @@ export default function CityMap({ city, visibleModes, visibleStatuses, hiddenLin
 
     map.setLayoutProperty(CASING, "visibility", visibleStatuses.length ? "visible" : "none");
 
-    const rrtsFilter = lineFilter("operational");
+    const operationalFilter = lineFilter("operational");
     map.setLayoutProperty(
       RRTS_CORE,
       "visibility",
-      rrtsFilter && visibleModes.includes("rrts") ? "visible" : "none",
+      operationalFilter && visibleModes.includes("rrts") ? "visible" : "none",
     );
-
     for (const overlay of OVERLAY_LAYERS) {
       map.setLayoutProperty(
         overlay.id,
         "visibility",
-        rrtsFilter && visibleModes.includes(overlay.mode) ? "visible" : "none",
+        operationalFilter && visibleModes.includes(overlay.mode) ? "visible" : "none",
       );
     }
 
-    // Stations follow the mode and status filters, not per-line toggles.
     const modeAny: ExpressionSpecification | null =
       visibleModes.length === 0
         ? null
@@ -351,24 +451,50 @@ export default function CityMap({ city, visibleModes, visibleStatuses, hiddenLin
     const parts = (
       visibleModes.length === 0 ? [] : [modeAny, statusAny].filter(Boolean)
     ) as ExpressionSpecification[];
-    const stationFilter: FilterSpecification = parts.length
-      ? ((["all", ...parts] as unknown) as FilterSpecification)
-      : (["==", ["get", "id"], "__none__"] as FilterSpecification);
 
-    for (const layer of [STATIONS, LABELS]) {
-      map.setFilter(layer, parts.length ? stationFilter : null);
-      map.setLayoutProperty(layer, "visibility", parts.length ? "visible" : "none");
-    }
+    const cityCondition = (active: boolean) =>
+      [active ? "==" : "!=", ["get", "city"], city.slug] as ExpressionSpecification;
+
+    const stationFilter = (active: boolean): FilterSpecification =>
+      (["all", cityCondition(active), ...parts] as unknown) as FilterSpecification;
+
+    map.setFilter(STATIONS, stationFilter(true));
+    map.setFilter(LABELS, stationFilter(true));
     map.setFilter(
       STATION_DOTS,
-      parts.length
-        ? (["all", ["==", ["get", "interchange"], true], ...parts] as unknown as FilterSpecification)
-        : null,
+      (["all", ["==", ["get", "interchange"], true], cityCondition(true), ...parts] as unknown) as FilterSpecification,
     );
-    map.setLayoutProperty(STATION_DOTS, "visibility", parts.length ? "visible" : "none");
-  }, [ready, visibleModes, visibleStatuses, hiddenLines]);
+    map.setFilter(STATIONS_OTHER, stationFilter(false));
+    map.setFilter(LABELS_OTHER, stationFilter(false));
 
-  return <div ref={containerRef} className="map" role="application" aria-label={`Map of ${city.city}`} />;
+    const visible = parts.length > 0;
+    for (const layer of [STATIONS, STATION_DOTS, LABELS, STATIONS_OTHER, LABELS_OTHER]) {
+      map.setLayoutProperty(layer, "visibility", visible ? "visible" : "none");
+    }
+  }, [ready, visibleModes, visibleStatuses, hiddenLines, city.slug]);
+
+  return (
+    <div className="map-shell">
+      <div
+        ref={containerRef}
+        className="map"
+        role="application"
+        aria-label={`Map of ${city.city} and neighbouring networks`}
+      />
+      {nearby && (
+        <button
+          type="button"
+          className="nearby-city"
+          onClick={() => navigate(`/city/${nearby.slug}`)}
+        >
+          <span className="nearby-city__label">Nearby network</span>
+          <span className="nearby-city__name">
+            {nearby.city} <span aria-hidden="true">→</span>
+          </span>
+        </button>
+      )}
+    </div>
+  );
 }
 
 function escapeHtml(value: string): string {

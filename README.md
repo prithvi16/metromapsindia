@@ -6,7 +6,8 @@ rail, regional rapid rail, trams and funiculars — drawn from OpenStreetMap.
 - **Home page:** every city in the index, with a generated SVG sketch of its network and
   headline stats.
 - **City pages:** the full network on an OpenFreeMap Positron basemap, with layer filters
-  for mode and construction status, and zoom locked to the metro region.
+  for mode and construction status. Neighbouring cities stay on the map, so zooming out
+  of Delhi reveals Noida and Gurugram; pan onto another network to see its stations.
 - **About page:** history, mode glossary and data provenance.
 
 ## Stack
@@ -60,7 +61,7 @@ src/
     cityData.ts               Index + lazy per-city loading
   data/cities/
     index.json                Registry, stats and previews (small, eager)
-    <slug>.json               Full network per city (lazy-loaded chunk)
+    all.json                  Every city's lines + stations (one lazy chunk)
 scripts/
   cities.mjs                  Hand-maintained city registry (bounds, stats, patterns)
   fetch-rail.mjs              Overpass fetch with per-city cache
@@ -84,12 +85,18 @@ Two visual channels keep eight modes readable at once:
 The legend exposes all three axes: mode chips, status chips, and a per-line eye toggle
 grouped by system. Filters compose, and station dots follow the mode and status filters.
 
-### Zoom limits
+### One map, many cities
 
-`bounds` and `minZoom` are generated per city from the metro region, not the municipal
-boundary. Delhi NCR spans the whole NCR including the RRTS corridor; Mumbai spans MMR.
-MapLibre is configured with `maxBounds` and `minZoom`, so you cannot zoom out past the
-region or pan away from it.
+Every city's lines live in a single GeoJSON source, tagged with a `city` slug. The city
+page opens framed on its own network and renders it at full strength; other cities are
+drawn faintly behind it. Zoom out and they become legible, pan across and their stations
+appear from zoom 11. Clicking another city's line or station opens that city's page, and
+a "Nearby network" chip appears when the viewport drifts into a neighbour.
+
+Each city has generated `bounds` (a tight box around its drawn network, not the
+municipal boundary) and a `minZoom`. The map itself allows zooming out to a national
+level — `minZoom: 4.6`, `maxBounds` set to India — so you can travel between networks
+without leaving the map.
 
 ### Defaults
 

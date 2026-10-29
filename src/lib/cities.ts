@@ -16,6 +16,8 @@ export type StationRef = { name: string; lat: number; lon: number };
 
 export type CityLine = {
   osmId: number;
+  /** Slug of the city this line belongs to (set in the combined dataset). */
+  city?: string;
   system: string;
   mode: Mode;
   name: string;
@@ -32,6 +34,7 @@ export type CityLine = {
 };
 
 export type CityStation = StationRef & {
+  city?: string;
   lines: string[];
   modes: Mode[];
 };
@@ -49,6 +52,12 @@ export type CityStats = {
   km: number;
   opened: string;
   ridership: string | null;
+};
+
+export type AllData = {
+  generatedAt: string;
+  lines: CityLine[];
+  stations: CityStation[];
 };
 
 export type CityData = {
@@ -145,6 +154,7 @@ export function linesGeoJson(lines: CityLine[]): FeatureCollection<MultiLineStri
       id: line.osmId,
       properties: {
         id: String(line.osmId),
+        city: line.city ?? "",
         mode: line.mode,
         status: line.status,
         colour: line.colour,
@@ -168,25 +178,33 @@ export function stationsGeoJson(
   stations: CityStation[],
   lines: CityLine[],
 ): FeatureCollection<Point> {
-  const statusByLine = new Map(lines.map((l) => [l.ref ?? l.name, l.status]));
-  const colourByLine = new Map(lines.map((l) => [l.ref ?? l.name, l.colour]));
+  // Line refs repeat across cities ("Line 1" exists in Delhi, Mumbai, …), so key
+  // the lookups by city as well.
+  const key = (city: string | undefined, ref: string) => `${city ?? ""}|${ref}`;
+  const statusByLine = new Map(
+    lines.map((l) => [key(l.city, l.ref ?? l.name), l.status]),
+  );
+  const colourByLine = new Map(
+    lines.map((l) => [key(l.city, l.ref ?? l.name), l.colour]),
+  );
 
   return {
     type: "FeatureCollection",
     features: stations.map((station) => {
       const statuses = new Set<Status>();
-      for (const key of station.lines) {
-        const status = statusByLine.get(key);
+      for (const lineRef of station.lines) {
+        const status = statusByLine.get(key(station.city, lineRef));
         if (status) statuses.add(status);
       }
       return {
         type: "Feature",
         properties: {
           name: station.name,
+          city: station.city ?? "",
           lines: station.lines.join(", "),
           modes: station.modes.join("|"),
           interchange: station.lines.length > 1,
-          colour: colourByLine.get(station.lines[0]) ?? "#64748b",
+          colour: colourByLine.get(key(station.city, station.lines[0])) ?? "#64748b",
           "is-operational": statuses.has("operational"),
           "is-under-construction": statuses.has("under-construction"),
           "is-planned": statuses.has("planned"),

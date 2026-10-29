@@ -4,15 +4,16 @@ import CityMap from "../components/CityMap";
 import Legend from "../components/Legend";
 import SiteFooter from "../components/SiteFooter";
 import SiteHeader from "../components/SiteHeader";
-import type { CityData, Mode, Status } from "../lib/cities";
+import type { AllData, CityData, Mode, Status } from "../lib/cities";
 import { DEFAULT_HIDDEN_MODES, MODE_META, STATUS_ORDER } from "../lib/cities";
-import { findCity, loadCity } from "../lib/cityData";
+import { findCity, loadCityView } from "../lib/cityData";
 
 export default function CityPage() {
   const { slug } = useParams();
   const summary = findCity(slug);
 
   const [city, setCity] = useState<CityData | null>(null);
+  const [all, setAll] = useState<AllData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [visibleModes, setVisibleModes] = useState<Mode[]>([]);
   const [visibleStatuses, setVisibleStatuses] = useState<Status[]>(STATUS_ORDER);
@@ -24,10 +25,11 @@ export default function CityPage() {
     setCity(null);
     setError(null);
 
-    loadCity(slug)
-      .then((data) => {
+    loadCityView(slug)
+      .then(({ city: data, all: allData }) => {
         if (cancelled) return;
         setCity(data);
+        setAll(allData);
         setVisibleModes(
           data.counts.modes.filter((mode) => !DEFAULT_HIDDEN_MODES.includes(mode)),
         );
@@ -125,10 +127,11 @@ export default function CityPage() {
         <div className="city-page__map">
           {error && <p className="city-page__error">Could not load map data: {error}</p>}
           {!city && !error && <p className="city-page__loading">Loading network…</p>}
-          {city && (
+          {city && all && (
             <>
               <CityMap
                 city={city}
+                all={all}
                 visibleModes={visibleModes}
                 visibleStatuses={visibleStatuses}
                 hiddenLines={hiddenLines}

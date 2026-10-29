@@ -592,11 +592,20 @@ async function main() {
     );
   }
 
-  // Write per-city files and the index.
+  // Write one combined dataset (the map shows neighbouring networks when you
+  // zoom out, so every city's lines live in the same source) plus the index.
   await mkdir(outDir, { recursive: true });
-  for (const [slug, data] of results) {
-    await writeFile(path.join(outDir, `${slug}.json`), JSON.stringify(data) + "\n", "utf8");
-  }
+
+  const all = {
+    generatedAt: new Date().toISOString(),
+    lines: [...results.values()].flatMap((data) =>
+      data.lines.map((line) => ({ ...line, city: data.slug })),
+    ),
+    stations: [...results.values()].flatMap((data) =>
+      data.stations.map((station) => ({ ...station, city: data.slug })),
+    ),
+  };
+  await writeFile(path.join(outDir, "all.json"), JSON.stringify(all) + "\n", "utf8");
 
   const index = {
     generatedAt: new Date().toISOString(),
