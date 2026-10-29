@@ -44,6 +44,8 @@ export type CityCounts = {
   stations: number;
   km: number;
   modes: Mode[];
+  systems: number;
+  systemNames: string[];
 };
 
 export type CityStats = {
@@ -146,6 +148,27 @@ export function lineLabel(line: CityLine): string {
 export function lineEndpoints(line: CityLine): string {
   if (line.from && line.to) return `${line.from} ↔ ${line.to}`;
   return line.name;
+}
+
+/** Length of a line's drawn geometry in kilometres. */
+export function lineLengthKm(line: CityLine): number {
+  const R = 6371;
+  let km = 0;
+  for (const segment of line.geometry) {
+    for (let i = 1; i < segment.length; i++) {
+      const [lat1, lon1] = segment[i - 1];
+      const [lat2, lon2] = segment[i];
+      const dLat = ((lat2 - lat1) * Math.PI) / 180;
+      const dLon = ((lon2 - lon1) * Math.PI) / 180;
+      const a =
+        Math.sin(dLat / 2) ** 2 +
+        Math.cos((lat1 * Math.PI) / 180) *
+          Math.cos((lat2 * Math.PI) / 180) *
+          Math.sin(dLon / 2) ** 2;
+      km += 2 * R * Math.asin(Math.sqrt(a));
+    }
+  }
+  return km;
 }
 
 export function linesGeoJson(lines: CityLine[]): FeatureCollection<MultiLineString> {

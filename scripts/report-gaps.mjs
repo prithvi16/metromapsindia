@@ -141,6 +141,32 @@ for (const summary of cities) {
     });
   }
 
+  // Same name, close together: usually two operator records for one physical
+  // interchange that the name canonicaliser did not merge.
+  const duplicateNames = [];
+  const byName = new Map();
+  for (const station of stations) {
+    const key = station.name.toLowerCase();
+    const bucket = byName.get(key) ?? [];
+    bucket.push(station);
+    byName.set(key, bucket);
+  }
+  for (const [name, bucket] of byName) {
+    if (bucket.length < 2) continue;
+    const close = bucket.some((a, i) =>
+      bucket.slice(i + 1).some((b) => haversine(a, b) < 2),
+    );
+    if (close) duplicateNames.push(`${name} ×${bucket.length}`);
+  }
+  if (duplicateNames.length) {
+    issues.push({
+      type: "duplicate-station-names",
+      severity: "low",
+      detail: `${duplicateNames.length} station names reused by separate records`,
+      examples: duplicateNames.slice(0, 5),
+    });
+  }
+
   const mapped = stations.length;
   const reported = summary.stats.stations;
   if (reported && mapped < reported * 0.75) {

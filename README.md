@@ -6,10 +6,13 @@ from OpenStreetMap; suburban networks are imported from the India Rail Info atla
 and drawn as one uniform teal line.
 
 - **Home page:** every city in the index, with a generated SVG sketch of its network and
-  headline stats.
+  headline stats. Mapped totals and official Wikipedia figures are labelled separately.
 - **City pages:** the full network on an OpenFreeMap Positron basemap, with layer filters
   for mode and construction status. Neighbouring cities stay on the map, so zooming out
   of Delhi reveals Noida and Gurugram; pan onto another network to see its stations.
+  Filters, map position and selected lines are shareable through the URL.
+- **Search (⌘K):** jump to any city, line or station; a station link flies to the
+  platform, a line link fits the corridor and reveals its mode.
 - **About page:** history, mode glossary and data provenance.
 
 ## Stack
@@ -58,11 +61,13 @@ src/
   components/
     CityMap.tsx               MapLibre map, rail layers, filters, popups
     Legend.tsx                Mode / status / per-line toggles
-    SiteHeader.tsx            Brand + breadcrumbs + nav
+    SearchDialog.tsx          ⌘K search across cities, lines and stations
+    SiteHeader.tsx            Brand + breadcrumbs + search + nav
     SiteFooter.tsx            All cities, about, attribution
   lib/
     cities.ts                 Types, mode metadata, GeoJSON builders
     cityData.ts               Index + lazy per-city loading
+    meta.ts                   Per-route title / description / OG tags
   data/cities/
     index.json                Registry, stats and previews (small, eager)
     all.json                  Every city's lines + stations (one lazy chunk)
@@ -127,7 +132,8 @@ npm run data:refresh
    with a proximity fallback. Satellite systems are matched first so "Navi Mumbai Metro"
    never lands in Mumbai.
 3. **Normalise** — ordered ways are stitched into polylines, duplicate directions are
-   collapsed, stop positions are clustered into stations (same name, within 2 km), and
+   collapsed, stop positions are canonicalised into stations (line-name suffixes and
+   operator aliases removed, same name within 1–1.5 km), and
    unnamed termini inherit the relation's `from` / `to` names.
 4. **Curate** — `CURATION` in `build-cities.mjs` holds per-city fixes for OSM tagging
    gaps (dropped duplicate route masters, status overrides, line renumbering).
@@ -201,7 +207,10 @@ than ~60% of the official count are marked `partial` and say so on the page.
 
 `counts.*` in the index describe what is actually drawn (including IRI suburban);
 `stats.*` stay the official Wikipedia figures for lines, stations, length, opening
-date and ridership.
+date and ridership. The km figure is **line-km**: a corridor shared by two services
+(for example Howrah–Barddhaman and Howrah–Katwa) counts once per route. The index also lists four announced systems — Surat (2027),
+Bhubaneswar (2028), Visakhapatnam (2029) and Coimbatore (TBD) — as coming-soon
+cards, so the "every operational line" claim is explicit rather than overstated.
 
 Figures for lines, stations, length, opening date and ridership come from Wikipedia's
 ["Urban rail transit in India"](https://en.wikipedia.org/wiki/Urban_rail_transit_in_India)
@@ -221,6 +230,7 @@ No tile keys or environment variables are required.
 
 - Map data © OpenStreetMap contributors, ODbL.
 - Suburban linework and station coordinates © India Rail Info (atlas), used here with
-  attribution.
+  attribution. The atlas has no open-data licence; permission is required before
+  redistributing derived data publicly.
 - Basemap © OpenFreeMap, built on OpenMapTiles.
 - Network figures and history from Wikipedia, CC BY-SA 4.0.

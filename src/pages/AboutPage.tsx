@@ -2,7 +2,8 @@ import { Link } from "react-router-dom";
 import SiteFooter from "../components/SiteFooter";
 import SiteHeader from "../components/SiteHeader";
 import { MODE_META, MODE_ORDER } from "../lib/cities";
-import { cityIndex, countryStats } from "../lib/cityData";
+import { countryStats } from "../lib/cityData";
+import { usePageMeta } from "../lib/meta";
 
 const TIMELINE = [
   { year: "1853", text: "First suburban train runs from Bori Bunder to Thane — Asia’s first commuter railway." },
@@ -29,6 +30,10 @@ const MODE_NOTES: Record<string, string> = {
 };
 
 export default function AboutPage() {
+  usePageMeta(
+    "About — MetroMaps India",
+    "How MetroMaps India combines OpenStreetMap and the India Rail Info atlas into one atlas of Indian urban rail.",
+  );
   return (
     <>
       <SiteHeader breadcrumbs={[{ label: "Home", to: "/" }, { label: "About" }]} />
@@ -36,18 +41,20 @@ export default function AboutPage() {
       <main className="page page--about">
         <h1>About MetroMaps India</h1>
         <p className="page__lede">
-          A map-first index of urban rail in India: {countryStats.systems} mapped systems
-          in {cityIndex.cities.length} cities, covering{" "}
+          A map-first index of urban rail in India: {countryStats.systems} systems across{" "}
+          {countryStats.cities} mapped cities, covering{" "}
           {countryStats.stations.toLocaleString("en-IN")} stations and roughly{" "}
-          {countryStats.km.toLocaleString("en-IN")} km of line.
+          {countryStats.km.toLocaleString("en-IN")} line-km — plus{" "}
+          {countryStats.listed - countryStats.cities} planned systems on the way.
         </p>
 
         <section>
           <h2>Why this exists</h2>
           <p>
             India’s urban rail networks are growing faster than any single map keeps up
-            with. This site pulls every line and station it can from OpenStreetMap, draws
-            them on a quiet basemap, and lets you filter by mode and construction status.
+            with. This site pulls metro and light-rail lines from OpenStreetMap and
+            suburban routes from the India Rail Info atlas, draws them on a quiet basemap,
+            and lets you filter by mode and construction status.
             Everything is generated from a reproducible data pipeline, so when a line opens
             the map can be refreshed with one command.
           </p>

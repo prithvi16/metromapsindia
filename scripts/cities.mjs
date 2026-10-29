@@ -1,7 +1,7 @@
 /**
- * City registry — the hand-maintained source of truth for the 21 systems in
- * metro-master.json. `scripts/build-cities.mjs` merges this with the OSM fetch
- * to produce src/data/cities/index.json.
+ * City registry — the hand-maintained source of truth for the 25 systems in the
+ * index (21 mapped + 4 under construction). `scripts/build-cities.mjs` merges
+ * this with the OSM/IRI fetches to produce src/data/cities/index.json.
  *
  * bounds: [west, south, east, north] — the metro region, not the municipal limit.
  * patterns: case-insensitive regexes matched against the OSM `network` tag.
@@ -196,6 +196,8 @@ export const CITIES = [
     operator: "HMRL",
     region: "South",
     bounds: [78.2, 17.2, 78.7, 17.65],
+    // MMTS fan: Lingampalli, Medchal, Bolarum, Falaknuma, Umdanagar.
+    suburbanBounds: [78.05, 17.2, 78.6, 17.7],
     patterns: ["hyderabad metro", "mmts", "multi-modal transport"],
     stats: { lines: 3, stations: 59, km: 65.9, opened: "2017-11-29", ridership: "178.0M (2024)" },
   },
@@ -230,6 +232,48 @@ export const CITIES = [
     bounds: [84.95, 25.4, 85.35, 25.75],
     patterns: ["patna metro"],
     stats: { lines: 1, stations: 4, km: 6.1, opened: "2025-10-06", ridership: null },
+  },
+  // Announced / under-construction systems: listed with official figures so the
+  // index is honest about what is coming, but no OSM network yet.
+  {
+    slug: "surat",
+    city: "Surat",
+    system: "Surat Metro",
+    operator: "GMRC",
+    region: "West",
+    bounds: [72.65, 21.05, 73.0, 21.35],
+    patterns: ["surat metro"],
+    stats: { lines: 2, stations: 38, km: 40.35, opened: "2027-12", ridership: null },
+  },
+  {
+    slug: "bhubaneswar",
+    city: "Bhubaneswar",
+    system: "Bhubaneswar Metro",
+    operator: "Government of Odisha",
+    region: "East",
+    bounds: [85.7, 20.15, 85.95, 20.4],
+    patterns: ["bhubaneswar metro"],
+    stats: { lines: 1, stations: 20, km: 26.024, opened: "2028", ridership: null },
+  },
+  {
+    slug: "visakhapatnam",
+    city: "Visakhapatnam",
+    system: "Visakhapatnam Metro",
+    operator: "APMRC",
+    region: "South",
+    bounds: [83.1, 17.6, 83.45, 17.9],
+    patterns: ["visakhapatnam metro", "vizag metro"],
+    stats: { lines: 4, stations: 54, km: 76.9, opened: "2029", ridership: null },
+  },
+  {
+    slug: "coimbatore",
+    city: "Coimbatore",
+    system: "Coimbatore Metro",
+    operator: "CMRL",
+    region: "South",
+    bounds: [76.85, 10.9, 77.1, 11.15],
+    patterns: ["coimbatore metro", "kovai metro"],
+    stats: { lines: 2, stations: 40, km: 73, opened: "TBD", ridership: null },
   },
 ];
 

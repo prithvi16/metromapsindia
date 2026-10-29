@@ -1,16 +1,20 @@
-import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 import CityMap from "../components/CityMap";
 import Legend from "../components/Legend";
 import SiteFooter from "../components/SiteFooter";
 import SiteHeader from "../components/SiteHeader";
 import type { AllData, CityData, Mode, Status } from "../lib/cities";
-import { DEFAULT_HIDDEN_MODES, MODE_META, STATUS_ORDER } from "../lib/cities";
+import { DEFAULT_HIDDEN_MODES, MODE_META, STATUS_ORDER, lineLengthKm } from "../lib/cities";
 import { findCity, loadCityView } from "../lib/cityData";
+import { usePageMeta } from "../lib/meta";
 
 export default function CityPage() {
   const { slug } = useParams();
   const summary = findCity(slug);
+  const [params, setParams] = useSearchParams();
+  const paramsRef = useRef(params);
+  paramsRef.current = params;
 
   const [city, setCity] = useState<CityData | null>(null);
   const [all, setAll] = useState<AllData | null>(null);
@@ -18,6 +22,30 @@ export default function CityPage() {
   const [visibleModes, setVisibleModes] = useState<Mode[]>([]);
   const [visibleStatuses, setVisibleStatuses] = useState<Status[]>(STATUS_ORDER);
   const [hiddenLines, setHiddenLines] = useState<string[]>([]);
+  const [fitRequest, setFitRequest] = useState<{ mode: Mode; nonce: number } | null>(null);
+
+  const updateParams = (updates: Record<string, string | null>) => {
+    setParams(
+      (previous) => {
+        const next = new URLSearchParams(previous);
+        for (const [key, value] of Object.entries(updates)) {
+          if (value == null || value === "") next.delete(key);
+          else next.set(key, value);
+        }
+        return next;
+      },
+      { replace: true },
+    );
+  };
+
+  usePageMeta(
+    summary ? `${summary.city} — MetroMaps India` : "MetroMaps India",
+    summary
+      ? summary.coverage === "none"
+        ? `${summary.city}: ${summary.system}, planned opening ${summary.stats.opened.slice(0, 4)}.`
+        : `${summary.city}: ${summary.counts.lines} mapped lines and ${summary.counts.stations} stations across ${summary.counts.km.toFixed(0)} line-km of metro, suburban and light rail.`
+      : "An atlas of urban rail in India.",
+  );
 
   useEffect(() => {
     if (!slug || !summary || summary.coverage === "none") return;
@@ -30,10 +58,57 @@ export default function CityPage() {
         if (cancelled) return;
         setCity(data);
         setAll(allData);
-        setVisibleModes(
-          data.counts.modes.filter((mode) => !DEFAULT_HIDDEN_MODES.includes(mode)),
-        );
-        setVisibleStatuses(STATUS_ORDER);
+
+        const rawModes = paramsRef.current.get("mode");
+        const requestedModes =
+          rawModes == null
+            ? null
+            : rawModes === "none"
+              ? []
+              : rawModes
+                  .split(",")
+                  .filter((mode): mode is Mode => data.counts.modes.includes(mode as Mode));
+        const rawStatuses = paramsRef.current.get("status");
+        const requestedStatuses =
+          rawStatuses == null
+            ? null
+            : rawStatuses.split(",").filter((status): status is Status =>
+                STATUS_ORDER.includes(status as Status),
+              );
+
+        let nextModes =
+          requestedModes ??
+          data.counts.modes.filter((mode) => !DEFAULT_HIDDEN_MODES.includes(mode));
+        let nextStatuses = requestedStatuses ?? STATUS_ORDER;
+
+        // A deep link to a line or station must reveal that feature even when
+        // its mode/status is hidden by default or filtered out in the URL.
+        const lineId = paramsRef.current.get("line");
+        const linkedLine = lineId
+          ? data.lines.find((line) => String(line.osmId) === lineId)
+          : undefined;
+        if (linkedLine) {
+          if (!nextModes.includes(linkedLine.mode)) nextModes = [...nextModes, linkedLine.mode];
+          if (!nextStatuses.includes(linkedLine.status)) {
+            nextStatuses = [...nextStatuses, linkedLine.status];
+          }
+        }
+        const focusRaw = paramsRef.current.get("focus");
+        if (focusRaw) {
+          const [lat, lng] = focusRaw.split(",").map(Number);
+          const station = data.stations.find(
+            (candidate) =>
+              Math.abs(candidate.lat - lat) < 0.001 && Math.abs(candidate.lon - lng) < 0.001,
+          );
+          if (station) {
+            for (const mode of station.modes) {
+              if (!nextModes.includes(mode)) nextModes = [...nextModes, mode];
+            }
+          }
+        }
+
+        setVisibleModes(nextModes);
+        setVisibleStatuses(nextStatuses);
         setHiddenLines([]);
       })
       .catch((err: unknown) => {
@@ -73,9 +148,9 @@ export default function CityPage() {
         <main className="page">
           <h1>{summary.city}</h1>
           <p className="page__lede">
-            {summary.system} is on the list, but OpenStreetMap does not have a mapped
-            network for it yet. This page will appear once the lines and stations are
-            traced.
+            {summary.system} is on the list, but its network is not mapped yet. Planned
+            opening: {summary.stats.opened.slice(0, 4)}. This page will appear once the
+            lines and stations are traced.
           </p>
           <p>
             <Link to="/">Browse the cities that are ready</Link>
@@ -86,6 +161,33 @@ export default function CityPage() {
     );
   }
 
+  const focusRaw = params.get("focus");
+  const focusLat = Number(focusRaw?.split(",")[0]);
+  const focusLng = Number(focusRaw?.split(",")[1]);
+  const focus =
+    Number.isFinite(focusLat) && Number.isFinite(focusLng)
+      ? {
+          lat: focusLat,
+          lng: focusLng,
+          name: params.get("name") ?? undefined,
+          z: Number(params.get("z") ?? 15),
+        }
+      : null;
+  const focusLineId = params.get("line");
+  const viewZ = Number(params.get("z"));
+  const viewLat = Number(params.get("lat"));
+  const viewLng = Number(params.get("lng"));
+  const view =
+    Number.isFinite(viewZ) && Number.isFinite(viewLat) && Number.isFinite(viewLng)
+      ? { z: viewZ, lat: viewLat, lng: viewLng }
+      : null;
+
+  const suburban = city?.lines.filter((line) => line.mode === "suburban") ?? [];
+  const suburbanStations = new Set(
+    suburban.flatMap((line) => line.stations.map((station) => station.name)),
+  ).size;
+  const suburbanKm = suburban.reduce((sum, line) => sum + lineLengthKm(line), 0);
+
   return (
     <>
       <SiteHeader breadcrumbs={breadcrumbs} />
@@ -94,7 +196,11 @@ export default function CityPage() {
           <div>
             <h1>{summary.city}</h1>
             <p className="city-page__system">
-              {summary.system}
+              {city
+                ? [...new Set(city.lines.map((line) => line.system))].join(" · ")
+                : summary.counts.systemNames.length > 0
+                  ? summary.counts.systemNames.join(" · ")
+                  : summary.system}
               {summary.operator ? ` · ${summary.operator}` : ""}
             </p>
           </div>
@@ -105,11 +211,16 @@ export default function CityPage() {
             </div>
             <div>
               <dt>Stations</dt>
-              <dd>{summary.counts.stations}</dd>
+              <dd>
+                {summary.counts.stations}
+                {summary.coverage === "partial" && summary.stats.stations > 0 && (
+                  <span className="is-muted"> / {summary.stats.stations}</span>
+                )}
+              </dd>
             </div>
             <div>
-              <dt>Network</dt>
-              <dd>{summary.stats.km.toFixed(1)} km</dd>
+              <dt>Line-km</dt>
+              <dd>{summary.counts.km.toFixed(1)} km</dd>
             </div>
             <div>
               <dt>Since</dt>
@@ -124,6 +235,31 @@ export default function CityPage() {
           </dl>
         </div>
 
+        {suburban.length > 0 && (
+          <div className="suburban-callout">
+            <div>
+              <strong>Suburban network</strong>
+              <span>
+                {suburban.length} lines · {suburbanStations} stations ·{" "}
+                {suburbanKm.toFixed(0)} km
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                if (!visibleModes.includes("suburban")) {
+                  const next: Mode[] = [...visibleModes, "suburban"];
+                  setVisibleModes(next);
+                  updateParams({ mode: next.join(",") });
+                }
+                setFitRequest({ mode: "suburban", nonce: Date.now() });
+              }}
+            >
+              Show on map
+            </button>
+          </div>
+        )}
+
         <div className="city-page__map">
           {error && <p className="city-page__error">Could not load map data: {error}</p>}
           {!city && !error && <p className="city-page__loading">Loading network…</p>}
@@ -135,25 +271,36 @@ export default function CityPage() {
                 visibleModes={visibleModes}
                 visibleStatuses={visibleStatuses}
                 hiddenLines={hiddenLines}
+                focus={focus}
+                focusLineId={focusLineId}
+                view={view}
+                fitRequest={fitRequest}
+                onViewChange={(next) =>
+                  updateParams({
+                    z: next.z.toFixed(2),
+                    lat: next.lat.toFixed(5),
+                    lng: next.lng.toFixed(5),
+                  })
+                }
               />
               <Legend
                 modes={city.counts.modes}
                 visibleModes={visibleModes}
-                onToggleMode={(mode) =>
-                  setVisibleModes((current) =>
-                    current.includes(mode)
-                      ? current.filter((m) => m !== mode)
-                      : [...current, mode],
-                  )
-                }
+                onToggleMode={(mode) => {
+                  const next = visibleModes.includes(mode)
+                    ? visibleModes.filter((m) => m !== mode)
+                    : [...visibleModes, mode];
+                  setVisibleModes(next);
+                  updateParams({ mode: next.length ? next.join(",") : "none" });
+                }}
                 visibleStatuses={visibleStatuses}
-                onToggleStatus={(status) =>
-                  setVisibleStatuses((current) =>
-                    current.includes(status)
-                      ? current.filter((s) => s !== status)
-                      : [...current, status],
-                  )
-                }
+                onToggleStatus={(status) => {
+                  const next = visibleStatuses.includes(status)
+                    ? visibleStatuses.filter((s) => s !== status)
+                    : [...visibleStatuses, status];
+                  setVisibleStatuses(next);
+                  updateParams({ status: next.join(",") });
+                }}
                 lines={city.lines}
                 hiddenLines={hiddenLines}
                 onToggleLine={(id) =>
@@ -177,10 +324,15 @@ export default function CityPage() {
               Zoom out to see neighbouring networks, or click another city's line to open
               it. The layer panel switches modes and statuses on and off.
             </p>
+            <p className="city-page__official">
+              Official {summary.system} figures: {summary.stats.lines} lines,{" "}
+              {summary.stats.stations} stations and {summary.stats.km.toFixed(1)} km
+              (Wikipedia, October 2026).
+            </p>
             {summary.coverage === "partial" && (
               <p className="notice">
-                OpenStreetMap coverage here is partial — some stations or lines are still
-                missing from the map data.
+                Coverage here is partial — {summary.counts.stations} of{" "}
+                {summary.stats.stations} stations are mapped so far.
               </p>
             )}
           </div>

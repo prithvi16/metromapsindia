@@ -294,11 +294,14 @@ export async function assembleSuburban(city) {
     if (spec.from && spec.to && bare(spec.from) !== bare(spec.to) && lineStations.length > 2) {
       const nameIndex = (name) => lineStations.findIndex((s) => s.name.toLowerCase() === bare(name));
       const startIdx = nameIndex(spec.from);
-      if (startIdx > 0) lineStations.splice(0, startIdx);
-      const endIdx = nameIndex(spec.to);
-      if (endIdx >= 0 && endIdx < lineStations.length - 1) {
-        lineStations.splice(endIdx + 1);
+      let endIdx = nameIndex(spec.to);
+      const trimStart = startIdx > 0;
+      if (trimStart) {
+        lineStations.splice(0, startIdx);
+        if (endIdx >= 0) endIdx -= startIdx;
       }
+      const trimEnd = endIdx >= 0 && endIdx < lineStations.length - 1;
+      if (trimEnd) lineStations.splice(endIdx + 1);
 
       const nearestVertex = (stretch, station) => {
         let index = 0;
@@ -313,14 +316,18 @@ export async function assembleSuburban(city) {
         return { index, km: best };
       };
 
-      const startCut = nearestVertex(geometry[0], lineStations[0]);
-      if (startCut.index > 0 && startCut.index < geometry[0].length - 1 && startCut.km < 3) {
-        geometry[0] = geometry[0].slice(startCut.index);
+      if (trimStart) {
+        const startCut = nearestVertex(geometry[0], lineStations[0]);
+        if (startCut.index > 0 && startCut.index < geometry[0].length - 1 && startCut.km < 3) {
+          geometry[0] = geometry[0].slice(startCut.index);
+        }
       }
-      const last = geometry.length - 1;
-      const endCut = nearestVertex(geometry[last], lineStations.at(-1));
-      if (endCut.index > 0 && endCut.index < geometry[last].length - 1 && endCut.km < 3) {
-        geometry[last] = geometry[last].slice(0, endCut.index + 1);
+      if (trimEnd) {
+        const last = geometry.length - 1;
+        const endCut = nearestVertex(geometry[last], lineStations.at(-1));
+        if (endCut.index > 0 && endCut.index < geometry[last].length - 1 && endCut.km < 3) {
+          geometry[last] = geometry[last].slice(0, endCut.index + 1);
+        }
       }
     }
 

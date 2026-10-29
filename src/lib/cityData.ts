@@ -52,8 +52,14 @@ export function citiesByRegion() {
 }
 
 export const countryStats = {
-  systems: cityIndex.cities.filter((c) => c.coverage !== "none").length,
-  planned: cityIndex.cities.length,
-  stations: cityIndex.cities.reduce((sum, c) => sum + c.stats.stations, 0),
-  km: Math.round(cityIndex.cities.reduce((sum, c) => sum + c.stats.km, 0)),
+  /** Distinct line systems drawn on the map (metro + suburban + tram …). */
+  systems: cityIndex.cities.reduce((sum, c) => sum + (c.counts.systems ?? 0), 0),
+  cities: cityIndex.cities.filter((c) => c.coverage !== "none").length,
+  listed: cityIndex.cities.length,
+  lines: cityIndex.cities.reduce((sum, c) => sum + c.counts.lines, 0),
+  /** Mapped totals: what the map actually draws. */
+  stations: cityIndex.cities.reduce((sum, c) => sum + c.counts.stations, 0),
+  km: Math.round(cityIndex.cities.reduce((sum, c) => sum + c.counts.km, 0)),
+  /** Wikipedia's official system figures, kept for reference. */
+  officialKm: Math.round(cityIndex.cities.reduce((sum, c) => sum + c.stats.km, 0)),
 };

@@ -4,10 +4,15 @@ import SiteHeader from "../components/SiteHeader";
 import { MODE_META } from "../lib/cities";
 import type { CitySummary } from "../lib/cities";
 import { cityIndex, countryStats } from "../lib/cityData";
+import { usePageMeta } from "../lib/meta";
 
 const REGION_TABS = ["All", "North", "West", "South", "East"] as const;
 
 export default function HomePage() {
+  usePageMeta(
+    "MetroMaps India — India's urban rail atlas",
+    `${countryStats.systems} systems across ${countryStats.cities} cities: ${countryStats.lines} metro, suburban, monorail, tram and RRTS lines on one map.`,
+  );
   const [params, setParams] = useSearchParams();
   const requested = params.get("region");
   const region: (typeof REGION_TABS)[number] = REGION_TABS.includes(
@@ -30,11 +35,14 @@ export default function HomePage() {
       <main className="home">
         <section className="hero">
           <p className="hero__eyebrow">India · urban rail</p>
-          <h1>Every metro, monorail and suburban line in India.</h1>
+          <h1>India’s metro, monorail and suburban lines, on one map.</h1>
           <p className="hero__lede">
-            {countryStats.systems} mapped systems across {cityIndex.cities.length} cities,
-            drawn from OpenStreetMap. Filter by mode, jump between cities, and see what is
-            running, building and planned.
+            {countryStats.systems} systems across {countryStats.cities} mapped cities —{" "}
+            {countryStats.lines} lines, {countryStats.stations.toLocaleString("en-IN")} mapped
+            stations and {countryStats.km.toLocaleString("en-IN")} line-km — with{" "}
+            {countryStats.listed - countryStats.cities} more planned systems on the way.
+            Metro from OpenStreetMap, suburban from the India Rail Info atlas. Filter by
+            mode, jump between cities, and see what is running, building and planned.
           </p>
 
           <dl className="hero__stats">
@@ -47,12 +55,12 @@ export default function HomePage() {
               <dd>{countryStats.stations.toLocaleString("en-IN")}</dd>
             </div>
             <div>
-              <dt>Network</dt>
+              <dt>Line-km</dt>
               <dd>{countryStats.km.toLocaleString("en-IN")} km</dd>
             </div>
             <div>
               <dt>Cities</dt>
-              <dd>{cityIndex.cities.length}</dd>
+              <dd>{countryStats.cities}</dd>
             </div>
           </dl>
         </section>
@@ -129,7 +137,9 @@ function CityCard({ city }: { city: CitySummary }) {
           </span>
         </div>
         <p className="city-card__system">
-          {city.system}
+          {city.counts.systemNames.length > 0
+            ? city.counts.systemNames.join(" · ")
+            : city.system}
           {city.operator ? ` · ${city.operator}` : ""}
         </p>
 
@@ -140,11 +150,16 @@ function CityCard({ city }: { city: CitySummary }) {
           </div>
           <div>
             <dt>Stations</dt>
-            <dd>{city.counts.stations || city.stats.stations}</dd>
+            <dd>
+              {city.counts.stations || city.stats.stations}
+              {city.coverage === "partial" && city.stats.stations > 0 && (
+                <span className="is-muted"> / {city.stats.stations}</span>
+              )}
+            </dd>
           </div>
           <div>
             <dt>km</dt>
-            <dd>{city.stats.km.toFixed(1)}</dd>
+            <dd>{(city.coverage === "none" ? city.stats.km : city.counts.km).toFixed(1)}</dd>
           </div>
           <div>
             <dt>Open</dt>

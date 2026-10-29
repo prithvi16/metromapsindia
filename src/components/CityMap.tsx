@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
+  LngLatBounds,
   Map as MapLibreMap,
   NavigationControl,
   Popup,
@@ -9,8 +10,14 @@ import {
   type FilterSpecification,
   type MapLayerMouseEvent,
 } from "maplibre-gl";
-import type { AllData, CityData, CitySummary, Mode, Status } from "../lib/cities";
-import { linesGeoJson, stationsGeoJson } from "../lib/cities";
+import type { AllData, CityData, CityLine, CitySummary, Mode, Status } from "../lib/cities";
+import {
+  MODE_META,
+  STATUS_META,
+  lineLengthKm,
+  linesGeoJson,
+  stationsGeoJson,
+} from "../lib/cities";
 import { cityIndex } from "../lib/cityData";
 
 const STYLE_URL = "https://tiles.openfreemap.org/styles/positron";
@@ -42,18 +49,39 @@ const STATION_DOTS = "rail-station-dots";
 const LABELS = "rail-station-labels";
 const LABELS_OTHER = "rail-station-labels-other";
 
+type FocusPoint = { lat: number; lng: number; name?: string; z?: number };
+type ViewState = { z: number; lat: number; lng: number };
+
 type Props = {
   city: CityData;
   all: AllData;
   visibleModes: Mode[];
   visibleStatuses: Status[];
   hiddenLines: string[];
+  focus?: FocusPoint | null;
+  focusLineId?: string | null;
+  view?: ViewState | null;
+  fitRequest?: { mode: Mode; nonce: number } | null;
+  onViewChange?: (view: ViewState) => void;
 };
 
-export default function CityMap({ city, all, visibleModes, visibleStatuses, hiddenLines }: Props) {
+export default function CityMap({
+  city,
+  all,
+  visibleModes,
+  visibleStatuses,
+  hiddenLines,
+  focus,
+  focusLineId,
+  view,
+  fitRequest,
+  onViewChange,
+}: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const navigate = useNavigate();
+  const onViewChangeRef = useRef(onViewChange);
+  onViewChangeRef.current = onViewChange;
   const [ready, setReady] = useState(false);
   const [nearby, setNearby] = useState<CitySummary | null>(null);
 
@@ -64,11 +92,15 @@ export default function CityMap({ city, all, visibleModes, visibleStatuses, hidd
     const map = new MapLibreMap({
       container: containerRef.current,
       style: STYLE_URL,
-      bounds: [
-        [west, south],
-        [east, north],
-      ],
-      fitBoundsOptions: { padding: 40, maxZoom: 12.5 },
+      ...(view
+        ? { center: [view.lng, view.lat] as [number, number], zoom: view.z }
+        : {
+            bounds: [
+              [west, south],
+              [east, north],
+            ] as [[number, number], [number, number]],
+            fitBoundsOptions: { padding: 40, maxZoom: 12.5 },
+          }),
       minZoom: NATIONAL_MIN_ZOOM,
       maxZoom: 18,
       maxBounds: INDIA_BOUNDS,
@@ -99,7 +131,11 @@ export default function CityMap({ city, all, visibleModes, visibleStatuses, hidd
       });
       setNearby(hit ?? null);
     };
-    map.on("moveend", updateNearby);
+    map.on("moveend", () => {
+      updateNearby();
+      const center = map.getCenter();
+      onViewChangeRef.current?.({ z: map.getZoom(), lat: center.lat, lng: center.lng });
+    });
 
     map.on("load", () => {
       const isActive = ["==", ["get", "city"], city.slug] as unknown as ExpressionSpecification;
@@ -342,11 +378,14 @@ export default function CityMap({ city, all, visibleModes, visibleStatuses, hidd
           if (!geometry || geometry.type !== "MultiLineString") return;
           const first = geometry.coordinates[0]?.[0];
           if (!first) return;
+          const line = all.lines.find((candidate) => String(candidate.osmId) === String(props.id));
           popup
             .setLngLat([first[0], first[1]])
             .setHTML(
-              `<strong>${escapeHtml(String(props.name))}</strong>` +
-                `<span class="station-popup__lines">${escapeHtml(String(props.system ?? ""))}</span>`,
+              line
+                ? richLineHtml(line)
+                : `<strong>${escapeHtml(String(props.name))}</strong>` +
+                    `<span class="station-popup__lines">${escapeHtml(String(props.system ?? ""))}</span>`,
             )
             .addTo(map);
         });
@@ -359,13 +398,7 @@ export default function CityMap({ city, all, visibleModes, visibleStatuses, hidd
         if (!geometry || geometry.type !== "Point") return;
         const props = feature.properties ?? {};
         const [lon, lat] = geometry.coordinates as [number, number];
-        popup
-          .setLngLat([lon, lat])
-          .setHTML(
-            `<strong>${escapeHtml(String(props.name))}</strong>` +
-              `<span class="station-popup__lines">${escapeHtml(String(props.lines))}</span>`,
-          )
-          .addTo(map);
+        popup.setLngLat([lon, lat]).setHTML(stationHtml(props)).addTo(map);
       });
 
       map.on("click", STATIONS_OTHER, (event: MapLayerMouseEvent) => {
@@ -392,6 +425,73 @@ export default function CityMap({ city, all, visibleModes, visibleStatuses, hidd
       setReady(false);
     };
   }, [city, all, navigate]);
+
+  // A search result can point at a station…
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !ready || !focus) return;
+    if (!Number.isFinite(focus.lat) || !Number.isFinite(focus.lng)) return;
+    map.flyTo({ center: [focus.lng, focus.lat], zoom: focus.z ?? 15, duration: 900 });
+    if (focus.name) {
+      const station = all.stations.find(
+        (candidate) =>
+          Math.abs(candidate.lat - focus.lat) < 0.001 &&
+          Math.abs(candidate.lon - focus.lng) < 0.001,
+      );
+      const html = station
+        ? stationHtml({
+            name: station.name,
+            modes: station.modes.join("|"),
+            lines: station.lines.join(", "),
+            interchange: station.lines.length > 1,
+          })
+        : `<strong>${escapeHtml(focus.name)}</strong>`;
+      new Popup({ closeButton: true, offset: 12, className: "station-popup" })
+        .setLngLat([focus.lng, focus.lat])
+        .setHTML(html)
+        .addTo(map);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ready, focus?.lat, focus?.lng, focus?.z, focus?.name, all]);
+
+  // …or at a whole line.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !ready || !focusLineId) return;
+    const line = all.lines.find((candidate) => String(candidate.osmId) === focusLineId);
+    if (!line) return;
+    const bounds = boundsForLines([line]);
+    if (bounds) map.fitBounds(bounds, { padding: 60, maxZoom: 14 });
+    const first = line.geometry[0]?.[0];
+    if (first) {
+      new Popup({ closeButton: true, offset: 12, className: "station-popup" })
+        .setLngLat([first[1], first[0]])
+        .setHTML(richLineHtml(line))
+        .addTo(map);
+    }
+  }, [ready, focusLineId, all]);
+
+  // "Show suburban" / fit-to-mode requests from the page.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !ready || !fitRequest) return;
+    const lines = city.lines.filter(
+      (line) => line.mode === fitRequest.mode && visibleStatuses.includes(line.status),
+    );
+    const bounds = boundsForLines(lines);
+    if (bounds) map.fitBounds(bounds, { padding: 50, maxZoom: 13 });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ready, fitRequest, city]);
+
+  const fitVisible = () => {
+    const map = mapRef.current;
+    if (!map) return;
+    const lines = city.lines.filter(
+      (line) => visibleModes.includes(line.mode) && visibleStatuses.includes(line.status),
+    );
+    const bounds = boundsForLines(lines);
+    if (bounds) map.fitBounds(bounds, { padding: 50, maxZoom: 13 });
+  };
 
   useEffect(() => {
     const map = mapRef.current;
@@ -481,6 +581,9 @@ export default function CityMap({ city, all, visibleModes, visibleStatuses, hidd
         role="application"
         aria-label={`Map of ${city.city} and neighbouring networks`}
       />
+      <button type="button" className="map-fit" onClick={fitVisible}>
+        Fit visible
+      </button>
       {nearby && (
         <button
           type="button"
@@ -494,6 +597,48 @@ export default function CityMap({ city, all, visibleModes, visibleStatuses, hidd
         </button>
       )}
     </div>
+  );
+}
+
+function boundsForLines(lines: CityLine[]): LngLatBounds | null {
+  const bounds = new LngLatBounds();
+  let any = false;
+  for (const line of lines) {
+    for (const segment of line.geometry) {
+      for (const [lat, lon] of segment) {
+        bounds.extend([lon, lat]);
+        any = true;
+      }
+    }
+  }
+  return any ? bounds : null;
+}
+
+function stationHtml(props: Record<string, unknown>): string {
+  const modes = String(props.modes ?? "")
+    .split("|")
+    .filter(Boolean)
+    .map((mode) => MODE_META[mode as Mode]?.label ?? mode)
+    .join(" · ");
+  return (
+    `<strong>${escapeHtml(String(props.name ?? ""))}</strong>` +
+    `<span class="station-popup__lines">${escapeHtml(modes)}</span>` +
+    `<span class="station-popup__meta">${escapeHtml(String(props.lines ?? ""))}</span>` +
+    (props.interchange ? `<span class="station-popup__badge">Interchange</span>` : "")
+  );
+}
+
+function richLineHtml(line: CityLine): string {
+  const status = STATUS_META[line.status]?.label ?? line.status;
+  const km = lineLengthKm(line).toFixed(1);
+  const endpoints =
+    line.from && line.to ? `${escapeHtml(line.from)} ↔ ${escapeHtml(line.to)}` : "";
+  const opened = line.openingDate ? ` · opened ${line.openingDate.slice(0, 4)}` : "";
+  return (
+    `<strong>${escapeHtml(line.name)}</strong>` +
+    `<span class="station-popup__lines">${escapeHtml(line.system)}</span>` +
+    (endpoints ? `<span class="station-popup__meta">${endpoints}</span>` : "") +
+    `<span class="station-popup__meta">${escapeHtml(status)} · ${km} km${opened}</span>`
   );
 }
 
