@@ -283,6 +283,7 @@ export const CITIES = [
     region: "West",
     bounds: [72.55, 18.95, 73.25, 23.15],
     // OSM relation for the corridor; fetch-rail.mjs queries it directly.
+    // Source query: scripts/queries/mumbai-ahmedabad.overpass
     osmRelation: 8304354,
     // Relation 8304354 carries both up/down alignments plus a fence way. Use
     // the continuous northbound chain only so the line does not double back.
