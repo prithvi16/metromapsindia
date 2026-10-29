@@ -202,6 +202,7 @@ export function linesGeoJson(lines: CityLine[]): FeatureCollection<MultiLineStri
 export function stationsGeoJson(
   stations: CityStation[],
   lines: CityLine[],
+  hiddenLineIds: string[] = [],
 ): FeatureCollection<Point> {
   // Line refs repeat across cities ("Line 1" exists in Delhi, Mumbai, …), so key
   // the lookups by city as well.
@@ -212,6 +213,10 @@ export function stationsGeoJson(
   const colourByLine = new Map(
     lines.map((l) => [key(l.city, l.ref ?? l.name), l.colour]),
   );
+  const idByLine = new Map(
+    lines.map((l) => [key(l.city, l.ref ?? l.name), String(l.osmId)]),
+  );
+  const hidden = new Set(hiddenLineIds);
 
   return {
     type: "FeatureCollection",
@@ -221,12 +226,20 @@ export function stationsGeoJson(
         const status = statusByLine.get(key(station.city, lineRef));
         if (status) statuses.add(status);
       }
+      const lineIds = station.lines
+        .map((lineRef) => idByLine.get(key(station.city, lineRef)))
+        .filter((id): id is string => Boolean(id));
+      // Hide a station only when every line serving it is hidden; interchanges
+      // stay visible while any of their lines is on.
+      const visible = lineIds.length === 0 || lineIds.some((id) => !hidden.has(id));
       return {
         type: "Feature",
         properties: {
           name: station.name,
           city: station.city ?? "",
           lines: station.lines.join(", "),
+          lineIds: lineIds.join("|"),
+          visible,
           modes: station.modes.join("|"),
           interchange: station.lines.length > 1,
           colour: colourByLine.get(key(station.city, station.lines[0])) ?? "#64748b",

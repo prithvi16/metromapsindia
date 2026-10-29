@@ -8,6 +8,7 @@ import {
   ScaleControl,
   type ExpressionSpecification,
   type FilterSpecification,
+  type GeoJSONSource,
   type MapLayerMouseEvent,
 } from "maplibre-gl";
 import type { AllData, CityData, CityLine, CitySummary, Mode, Status } from "../lib/cities";
@@ -170,7 +171,7 @@ export default function CityMap({
       map.addSource("rail-lines", { type: "geojson", data: linesGeoJson(all.lines) });
       map.addSource("rail-stations", {
         type: "geojson",
-        data: stationsGeoJson(all.stations, all.lines),
+        data: stationsGeoJson(all.stations, all.lines, hiddenLines),
       });
 
       const width = [
@@ -511,6 +512,9 @@ export default function CityMap({
     const map = mapRef.current;
     if (!map || !ready) return;
 
+    const stationSource = map.getSource("rail-stations") as GeoJSONSource | undefined;
+    stationSource?.setData(stationsGeoJson(all.stations, all.lines, hiddenLines));
+
     const modeCondition: ExpressionSpecification | null =
       visibleModes.length === 0
         ? null
@@ -536,7 +540,31 @@ export default function CityMap({
       if (filter) map.setFilter(layer, filter);
     }
 
-    map.setLayoutProperty(CASING, "visibility", visibleStatuses.length ? "visible" : "none");
+    // The casing is a separate white layer under the coloured lines; it needs
+    // the same status/mode/hidden-line filters or a hidden line leaves a white
+    // halo behind.
+    const casingParts: ExpressionSpecification[] = [];
+    if (visibleStatuses.length > 0) {
+      casingParts.push(
+        ["in", ["get", "status"], ["literal", visibleStatuses]] as ExpressionSpecification,
+      );
+    }
+    if (modeCondition) casingParts.push(modeCondition);
+    if (hiddenLineCondition) casingParts.push(hiddenLineCondition);
+    const casingVisible = visibleStatuses.length > 0 && visibleModes.length > 0;
+    map.setLayoutProperty(CASING, "visibility", casingVisible ? "visible" : "none");
+    if (casingVisible) {
+      map.setFilter(CASING, ["all", ...casingParts] as FilterSpecification);
+    }
+
+    const statusFilter = (mode: Mode, status: Status): FilterSpecification => {
+      const parts: ExpressionSpecification[] = [
+        ["==", ["get", "mode"], mode],
+        ["==", ["get", "status"], status],
+      ];
+      if (hiddenLineCondition) parts.push(hiddenLineCondition);
+      return ["all", ...parts] as FilterSpecification;
+    };
 
     const operationalFilter = lineFilter("operational");
     map.setLayoutProperty(
@@ -544,12 +572,13 @@ export default function CityMap({
       "visibility",
       operationalFilter && visibleModes.includes("rrts") ? "visible" : "none",
     );
+    if (operationalFilter && visibleModes.includes("rrts")) {
+      map.setFilter(RRTS_CORE, statusFilter("rrts", "operational"));
+    }
     for (const overlay of OVERLAY_LAYERS) {
-      map.setLayoutProperty(
-        overlay.id,
-        "visibility",
-        operationalFilter && visibleModes.includes(overlay.mode) ? "visible" : "none",
-      );
+      const visible = operationalFilter && visibleModes.includes(overlay.mode);
+      map.setLayoutProperty(overlay.id, "visibility", visible ? "visible" : "none");
+      if (visible) map.setFilter(overlay.id, statusFilter(overlay.mode, "operational"));
     }
 
     const modeAny: ExpressionSpecification | null =
@@ -570,13 +599,24 @@ export default function CityMap({
       [active ? "==" : "!=", ["get", "city"], city.slug] as ExpressionSpecification;
 
     const stationFilter = (active: boolean): FilterSpecification =>
-      (["all", cityCondition(active), ...parts] as unknown) as FilterSpecification;
+      ([
+        "all",
+        ["==", ["get", "visible"], true],
+        cityCondition(active),
+        ...parts,
+      ] as unknown) as FilterSpecification;
 
     map.setFilter(STATIONS, stationFilter(true));
     map.setFilter(LABELS, stationFilter(true));
     map.setFilter(
       STATION_DOTS,
-      (["all", ["==", ["get", "interchange"], true], cityCondition(true), ...parts] as unknown) as FilterSpecification,
+      ([
+        "all",
+        ["==", ["get", "visible"], true],
+        ["==", ["get", "interchange"], true],
+        cityCondition(true),
+        ...parts,
+      ] as unknown) as FilterSpecification,
     );
     map.setFilter(STATIONS_OTHER, stationFilter(false));
     map.setFilter(LABELS_OTHER, stationFilter(false));
