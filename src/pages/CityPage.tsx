@@ -250,13 +250,16 @@ export default function CityPage() {
                 focus={focus}
                 focusLineId={focusLineId}
                 view={view}
-                onViewChange={(next) =>
+                onViewChange={(next) => {
+                  // A late map event must not rewrite the URL after the user
+                  // has navigated away from this city.
+                  if (window.location.pathname !== `/city/${summary.slug}`) return;
                   updateParams({
                     z: next.z.toFixed(2),
                     lat: next.lat.toFixed(5),
                     lng: next.lng.toFixed(5),
-                  })
-                }
+                  });
+                }}
               />
               <Legend
                 modes={city.counts.modes}

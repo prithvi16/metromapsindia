@@ -145,8 +145,17 @@ export default function CityMap({
       });
       setNearby(hit ?? null);
     };
+    // Only persist camera moves the user actually made. The initial city fit
+    // is programmatic; writing it back to the URL can race with navigation and
+    // pull the user back to the city page after they click Home.
+    let userMoved = false;
+    map.on("movestart", (event) => {
+      if (event.originalEvent) userMoved = true;
+    });
     map.on("moveend", () => {
       updateNearby();
+      if (!userMoved) return;
+      userMoved = false;
       const center = map.getCenter();
       onViewChangeRef.current?.({ z: map.getZoom(), lat: center.lat, lng: center.lng });
     });
