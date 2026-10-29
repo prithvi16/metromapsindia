@@ -79,3 +79,10 @@ distinguishable from raw OSM data.
 
 The `transit-curator` subagent automates this workflow; see
 `.opencode/agents/transit-curator.md`.
+
+## Suburban manifests are separate
+
+Suburban rail does not use this folder. Cities whose suburban network comes from the
+India Rail Info atlas have a manifest in `scripts/suburban/<slug>.json`; when one
+exists, `build-cities.mjs` drops the city's OSM `route=train` suburban lines and
+imports the IRI corridors instead. See `.opencode/agents/iri-suburban.md`.

@@ -6,18 +6,34 @@
  * There is no REST "line" API for bulk data: the linework lives in the tiles.
  *
  * Usage:
- *   node scripts/fetch-iri.mjs --bbox=72.75,18.88,73.30,19.38 --out=scripts/out/iri-mumbai
+ *   node scripts/fetch-iri.mjs --city=mumbai
+ *   node scripts/fetch-iri.mjs --bbox=72.75,18.88,73.30,19.38 --out=scripts/out/iri/mumbai
  *
  * Options:
- *   --bbox=w,s,e,n     required
+ *   --city=slug        read bounds from scripts/cities.mjs (preferred)
+ *   --bbox=w,s,e,n     required if --city is omitted
  *   --zoom=12          tile zoom (the source has no tiles above z12)
  *   --version=...      tile build id, i.e. #atl_version on /atlas (default below)
- *   --out=dir          output directory
+ *   --out=dir          output directory (default scripts/out/iri/<slug>)
+ *
+ * Outputs (in --out):
+ *   stations.geojson   station points with stnid/code/name/type/halting
+ *   tracks.geojson     stitched z12 linework per trackid
+ *   tracks.json        track table (id, name, type, zone, segment counts)
+ *
+ * Full-resolution linework per track comes from /atlas/track/<trackid> and is
+ * fetched through a browser by the iri-suburban agent; this script only needs
+ * the open tile host.
  */
 import fs from "node:fs/promises";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { VectorTile } from "@mapbox/vector-tile";
 import { PbfReader } from "pbf";
+import { CITIES } from "./cities.mjs";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const root = path.resolve(__dirname, "..");
 
 const args = Object.fromEntries(
   process.argv.slice(2).map((a) => {
@@ -26,16 +42,33 @@ const args = Object.fromEntries(
   }),
 );
 
-const [w, s, e, n] = (args.bbox || "").split(",").map(Number);
+let w;
+let s;
+let e;
+let n;
+
+if (args.city) {
+  const city = CITIES.find((c) => c.slug === args.city);
+  if (!city) {
+    console.error(`Unknown city "${args.city}". Known: ${CITIES.map((c) => c.slug).join(", ")}`);
+    process.exit(1);
+  }
+  // Suburban imports need the commuter catchment, not the metro-region box.
+  [w, s, e, n] = city.suburbanBounds ?? city.bounds;
+} else {
+  [w, s, e, n] = (args.bbox || "").split(",").map(Number);
+}
+
 if (![w, s, e, n].every(Number.isFinite)) {
-  console.error("Pass --bbox=west,south,east,north");
+  console.error("Pass --city=<slug> or --bbox=west,south,east,north");
   process.exit(1);
 }
 
 const Z = Number(args.zoom || 12);
 // Read #atl_version from https://indiarailinfo.com/atlas when it changes.
 const VERSION = args.version || "1793079041";
-const OUT = args.out || "scripts/out/iri";
+const OUT = path.resolve(root, args.out || path.join("scripts/out/iri", args.city || "bbox"));
+const CACHE = path.resolve(root, "scripts/out/iri/cache", VERSION);
 const TILE = `https://maps.indiarailinfo.com/data/iritiles${VERSION}`;
 
 const lon2tile = (lon, z) => Math.floor(((lon + 180) / 360) * 2 ** z);
@@ -49,7 +82,28 @@ const x1 = lon2tile(e, Z);
 const y0 = lat2tile(n, Z);
 const y1 = lat2tile(s, Z);
 
+function cachePath(x, y) {
+  return path.join(CACHE, String(Z), String(x), `${y}.pbf`);
+}
+
+async function readCache(x, y) {
+  try {
+    return new Uint8Array(await fs.readFile(cachePath(x, y)));
+  } catch {
+    return null;
+  }
+}
+
+async function writeCache(x, y, buf) {
+  const file = cachePath(x, y);
+  await fs.mkdir(path.dirname(file), { recursive: true });
+  await fs.writeFile(file, buf);
+}
+
 async function getTile(x, y) {
+  const cached = await readCache(x, y);
+  if (cached) return cached;
+
   for (let attempt = 1; attempt <= 6; attempt++) {
     try {
       const res = await fetch(`${TILE}/${Z}/${x}/${y}.pbf`);
@@ -62,7 +116,9 @@ async function getTile(x, y) {
         continue;
       }
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return new Uint8Array(await res.arrayBuffer());
+      const buf = new Uint8Array(await res.arrayBuffer());
+      await writeCache(x, y, buf);
+      return buf;
     } catch (err) {
       if (attempt === 6) throw err;
       await new Promise((r) => setTimeout(r, 1000 * attempt));
@@ -119,9 +175,10 @@ async function worker() {
         const f = trackLayer.feature(i);
         const p = f.properties;
         const geom = f.toGeoJSON(x, y, Z).geometry;
-        if (geom.type !== "LineString") continue;
         if (!tracks.has(p.trackid)) tracks.set(p.trackid, []);
-        tracks.get(p.trackid).push(geom.coordinates);
+        // A track can be clipped into a MultiLineString inside one tile.
+        if (geom.type === "LineString") tracks.get(p.trackid).push(geom.coordinates);
+        else if (geom.type === "MultiLineString") tracks.get(p.trackid).push(...geom.coordinates);
       }
     }
 
@@ -142,7 +199,7 @@ async function worker() {
   }
 }
 
-const same = (a, b) => Math.abs(a[0] - b[0]) < 2e-5 && Math.abs(a[1] - b[1]) < 2e-5;
+const same = (a, b) => Math.abs(a[0] - b[0]) < 5e-5 && Math.abs(a[1] - b[1]) < 5e-5;
 
 /** Join tile-clipped segments of one track into a single ordered line. */
 function stitch(segs) {
@@ -176,14 +233,26 @@ function stitch(segs) {
   return { type: "MultiLineString", coordinates: [line, ...leftovers] };
 }
 
-const metaRes = await fetch(`${TILE}.json`);
-if (!metaRes.ok) {
-  console.error(`No TileJSON for build ${VERSION}. Read #atl_version at https://indiarailinfo.com/atlas and pass --version=...`);
+let metaRes;
+for (let attempt = 1; attempt <= 6; attempt++) {
+  metaRes = await fetch(`${TILE}.json`);
+  if (metaRes.ok || metaRes.status === 404) break;
+  // 403 here is the same transient rate limit as on the tiles.
+  await new Promise((r) => setTimeout(r, attempt * 1500));
+}
+if (!metaRes?.ok) {
+  console.error(
+    metaRes?.status === 404
+      ? `No TileJSON for build ${VERSION}. Read #atl_version at https://indiarailinfo.com/atlas and pass --version=...`
+      : `TileJSON request failed (HTTP ${metaRes?.status}). Retry later.`,
+  );
   process.exit(1);
 }
 
 await fs.mkdir(OUT, { recursive: true });
-console.log(`Fetching ${total} tiles z${Z} for ${w},${s},${e},${n} (build ${VERSION})`);
+console.log(
+  `Fetching ${total} tiles z${Z} for ${w},${s},${e},${n} (build ${VERSION}${args.city ? `, ${args.city}` : ""})`,
+);
 await Promise.all(Array.from({ length: 5 }, worker));
 
 const stationFc = {
@@ -220,11 +289,18 @@ const trackFc = {
   }),
 };
 
+const trackTable = trackFc.features
+  .map((f) => f.properties)
+  .sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+
 await fs.writeFile(path.join(OUT, "stations.geojson"), JSON.stringify(stationFc));
 await fs.writeFile(path.join(OUT, "tracks.geojson"), JSON.stringify(trackFc));
+await fs.writeFile(path.join(OUT, "tracks.json"), JSON.stringify(trackTable, null, 2) + "\n");
 
 console.log(`\n${stationFc.features.length} stations, ${trackFc.features.length} tracks -> ${OUT}`);
 console.log("\nTracks:");
-for (const f of trackFc.features.sort((a, b) => (a.properties.name || "").localeCompare(b.properties.name || ""))) {
-  console.log(`  ${f.properties.trackid.padEnd(10)} t${String(f.properties.tracktype).padEnd(3)} ${f.properties.name || "(unnamed)"}`);
+for (const f of trackTable) {
+  console.log(
+    `  ${String(f.trackid).padEnd(10)} t${String(f.tracktype).padEnd(3)} ${f.name || "(unnamed)"}`,
+  );
 }

@@ -1,0 +1,99 @@
+{
+  "build": "1793079041",
+  "checkedAt": "2026-10-29",
+  "system": "Mumbai Suburban Railway",
+  "operator": "Indian Railways (Central & Western Railway)",
+  "stationAliases": {
+    "Dadar Ctrl": "Dadar",
+    "Dadar Western": "Dadar",
+    "Mumbai Ctrl": "Mumbai Central",
+    "Mumbai CSM Trm": "Mumbai CSMT",
+    "Mumbai LTT": "Lokmanya Tilak Terminus",
+    "Bandra Trm": "Bandra Terminus",
+    "Mahalakshmi": "Mahalaxmi",
+    "Ville Parle": "Vile Parle",
+    "Santa Cruz": "Santacruz",
+    "Chunabhatti": "Chuna Bhatti",
+    "GTB Nagar": "Guru Tegh Bahadur Nagar",
+    "Tilaknagar": "Tilak Nagar",
+    "Seawoods Darave Karave": "Seawoods",
+    "Belapur CBD": "CBD Belapur",
+    "Uran": "Uran City",
+    "Datiwali": "Dativali",
+    "Kharbav": "Kharbhav",
+    "Bhiwandi Road": "Bhivandi Road",
+    "Juchandra": "Juichandra",
+    "Kandivli": "Kandivali",
+    "Nalla Sopara": "Nallasopara",
+    "Kalyan Jn": "Kalyan Junction",
+    "Diva Jn": "Diva",
+    "Kandivli EMU Shed": "Kandivali",
+    "Neral Jn NG": "Neral"
+  },
+  "lines": [
+    {
+      "id": "western",
+      "name": "Western Line",
+      "from": "Churchgate",
+      "to": "Virar",
+      "status": "operational",
+      "tracks": ["914.1", "955.1", "7.321"]
+    },
+    {
+      "id": "central",
+      "name": "Central Line",
+      "from": "Mumbai CSMT",
+      "to": "Kasara",
+      "status": "operational",
+      "tracks": ["932.61", "932.1", "947.1", "1478.1", "954.1", "1986.1", "1056.1", "1056.25", "28.1", "28.99"]
+    },
+    {
+      "id": "karjat-branch",
+      "name": "Karjat Branch",
+      "from": "Kalyan Junction",
+      "to": "Karjat",
+      "status": "operational",
+      "tracks": ["1048.1", "1914.1"]
+    },
+    {
+      "id": "harbour",
+      "name": "Harbour Line",
+      "from": "Mumbai CSMT",
+      "to": "Panvel",
+      "status": "operational",
+      "tracks": ["909.1", "909.28", "913.1", "942.1", "942.377", "942.401", "31.1"]
+    },
+    {
+      "id": "trans-harbour",
+      "name": "Trans-Harbour Line",
+      "from": "Thane",
+      "to": "Panvel",
+      "status": "operational",
+      "tracks": ["1915.1", "313.1", "313.17", "1073.1", "942.401", "31.1"]
+    },
+    {
+      "id": "nerul-uran",
+      "name": "Nerul–Uran Line",
+      "from": "Nerul",
+      "to": "Uran City",
+      "status": "operational",
+      "tracks": ["732.270", "732.162", "732.1"]
+    },
+    {
+      "id": "vasai-diva",
+      "name": "Vasai Road–Diva Line",
+      "from": "Vasai Road",
+      "to": "Diva",
+      "status": "operational",
+      "tracks": ["32.1", "32.47", "1482.1", "1986.1"]
+    },
+    {
+      "id": "panvel-karjat",
+      "name": "Panvel–Karjat Line",
+      "from": "Panvel",
+      "to": "Karjat",
+      "status": "operational",
+      "tracks": ["208.1"]
+    }
+  ]
+}

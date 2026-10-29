@@ -1,7 +1,9 @@
 # MetroMaps India
 
 An interactive atlas of urban rail in India — metro, suburban rail, monorail, light
-rail, regional rapid rail, trams and funiculars — drawn from OpenStreetMap.
+rail, regional rapid rail, trams and funiculars. Metro and light-rail lines come
+from OpenStreetMap; suburban networks are imported from the India Rail Info atlas
+and drawn as one uniform teal line.
 
 - **Home page:** every city in the index, with a generated SVG sketch of its network and
   headline stats.
@@ -17,7 +19,7 @@ rail, regional rapid rail, trams and funiculars — drawn from OpenStreetMap.
 | Basemap | [OpenFreeMap](https://openfreemap.org) Positron — vector tiles, no API key |
 | Renderer | MapLibre GL JS 5 |
 | App | React 19 + TypeScript + Vite 8, `react-router-dom` |
-| Data | OpenStreetMap via Overpass, pre-built into per-city JSON |
+| Data | OpenStreetMap via Overpass + India Rail Info atlas for suburban, pre-built into per-city JSON |
 | Server | Express static server with SPA fallback |
 
 ## Getting started
@@ -37,6 +39,8 @@ npm run dev          # http://localhost:5173
 | `npm start` | Serve `dist/` with Express (port `$PORT`) |
 | `npm run typecheck` | TypeScript only |
 | `npm run data:fetch` | Fetch raw OSM data for every city (cached) |
+| `npm run data:iri` | Fetch India Rail Info atlas tiles for a city (`-- --city=mumbai`) |
+| `npm run data:suburban` | Assemble suburban manifests into preview GeoJSON |
 | `npm run data:build` | Rebuild `src/data/cities/` from the cache |
 | `npm run data:refresh` | Fetch + build in one go |
 
@@ -65,8 +69,12 @@ src/
 scripts/
   cities.mjs                  Hand-maintained city registry (bounds, stats, patterns)
   fetch-rail.mjs              Overpass fetch with per-city cache
+  fetch-iri.mjs               India Rail Info atlas tile extractor
+  build-suburban.mjs          Suburban manifest assembler (preview)
   build-cities.mjs            Normalisation, curation, previews, index
+  suburban/<slug>.json        Which IRI tracks form each suburban corridor
   lib/overpass.mjs            Overpass client + geometry helpers
+  lib/suburban.mjs            Manifest + IRI tracks → CityLine records
 ```
 
 ## How the map is built
@@ -125,6 +133,12 @@ npm run data:refresh
    gaps (dropped duplicate route masters, status overrides, line renumbering).
 5. **Build** — geometry is simplified (~5 m), per-city JSON is written, and the index
    gets stats, `minZoom` and an SVG preview projected with Web Mercator.
+6. **Suburban import** — for cities with a `scripts/suburban/<slug>.json` manifest,
+   India Rail Info atlas tiles supply the tracks and stations. The manifest groups
+   track segments into named corridors; `build-cities.mjs` drops that city's OSM
+   suburban relations and appends the IRI network. Every suburban line is forced to
+   one colour (`#0f766e`) and one solid stroke, so the commuter network reads as a
+   single layer.
 
 ### Cleaning up the data
 
@@ -152,11 +166,42 @@ so it cannot change the app. Ask for it with:
 Use the transit-curator subagent on Mumbai — the under-construction lines are missing stations.
 ```
 
+The **iri-suburban** subagent (`.opencode/agents/iri-suburban.md`) imports a city's
+suburban network from the India Rail Info atlas. It downloads the atlas tiles, picks
+the suburban corridors out of the national track layer, fetches full-resolution track
+geometry through the atlas page, writes `scripts/suburban/<slug>.json`, and rebuilds.
+
+```text
+Use the iri-suburban subagent on Kolkata.
+```
+
+### Suburban manifests
+
+`scripts/suburban/<slug>.json` records which IRI trackids form each corridor:
+
+```json
+{
+  "build": "1793079041",
+  "checkedAt": "2026-10-29",
+  "lines": [
+    { "id": "western", "name": "Western Line", "from": "Churchgate", "to": "Virar",
+      "status": "operational", "tracks": ["914.1", "955.1", "7.321"] }
+  ]
+}
+```
+
+Run `npm run data:iri -- --city=<slug>` to refresh the tiles, then
+`npm run data:suburban -- --city=<slug>` to preview the assembled network.
+
 ### Coverage
 
 OSM completeness varies a lot. Cities with no usable relations are marked
 `coverage: "none"` and appear as "Coming soon" cards; cities with fewer mapped stations
 than ~60% of the official count are marked `partial` and say so on the page.
+
+`counts.*` in the index describe what is actually drawn (including IRI suburban);
+`stats.*` stay the official Wikipedia figures for lines, stations, length, opening
+date and ridership.
 
 Figures for lines, stations, length, opening date and ridership come from Wikipedia's
 ["Urban rail transit in India"](https://en.wikipedia.org/wiki/Urban_rail_transit_in_India)
@@ -175,5 +220,7 @@ No tile keys or environment variables are required.
 ## Attribution
 
 - Map data © OpenStreetMap contributors, ODbL.
+- Suburban linework and station coordinates © India Rail Info (atlas), used here with
+  attribution.
 - Basemap © OpenFreeMap, built on OpenMapTiles.
 - Network figures and history from Wikipedia, CC BY-SA 4.0.

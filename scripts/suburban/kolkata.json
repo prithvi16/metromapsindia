@@ -1,0 +1,100 @@
+{
+  "build": "1793079041",
+  "checkedAt": "2026-10-29",
+  "system": "Kolkata Suburban Railway",
+  "operator": "Indian Railways (Eastern & South Eastern Railway)",
+  "stationAliases": {
+    "Howrah Jn": "Howrah",
+    "Barddhaman Jn": "Barddhaman",
+    "Krishnanagar City Jn": "Krishnanagar",
+    "Dum Dum Jn": "Dum Dum",
+    "Ballygunge Jn": "Ballygunge",
+    "Shrirampur": "Serampore",
+    "Jadabpur": "Jadavpur",
+    "Princep Ghat": "Prinsep Ghat",
+    "Barra Bazar": "Burrabazar",
+    "Komagata Maru Budge Budge": "Budge Budge"
+  },
+  "lines": [
+    {
+      "id": "howrah-barddhaman",
+      "name": "Howrah–Barddhaman",
+      "from": "Howrah",
+      "to": "Barddhaman",
+      "status": "operational",
+      "tracks": ["445.177", "445.173", "445.162", "154.1", "1782.1"]
+    },
+    {
+      "id": "howrah-katwa",
+      "name": "Howrah–Katwa",
+      "from": "Howrah",
+      "to": "Katwa",
+      "status": "operational",
+      "tracks": ["445.177", "445.173", "445.162", "445.1"]
+    },
+    {
+      "id": "sealdah-ranaghat",
+      "name": "Sealdah–Ranaghat",
+      "from": "Sealdah",
+      "to": "Ranaghat",
+      "status": "operational",
+      "tracks": ["1858.1", "1827.1", "1809.1", "1803.1"]
+    },
+    {
+      "id": "ranaghat-krishnanagar",
+      "name": "Ranaghat–Krishnanagar",
+      "from": "Ranaghat",
+      "to": "Krishnanagar",
+      "status": "operational",
+      "tracks": ["400.1", "1796.1", "1795.1"]
+    },
+    {
+      "id": "sealdah-bongaon",
+      "name": "Sealdah–Bongaon",
+      "from": "Sealdah",
+      "to": "Bangaon",
+      "status": "operational",
+      "tracks": ["1858.1", "388.1"]
+    },
+    {
+      "id": "sealdah-hasnabad",
+      "name": "Sealdah–Hasnabad",
+      "from": "Sealdah",
+      "to": "Champapukur",
+      "status": "operational",
+      "tracks": ["1858.1", "385.1"]
+    },
+    {
+      "id": "sealdah-canning",
+      "name": "Sealdah–Canning",
+      "from": "Sealdah",
+      "to": "Canning",
+      "status": "operational",
+      "tracks": ["1895.1", "1874.1", "387.1"]
+    },
+    {
+      "id": "sealdah-diamond-harbour",
+      "name": "Sealdah–Diamond Harbour",
+      "from": "Sealdah",
+      "to": "Diamond Harbour",
+      "status": "operational",
+      "tracks": ["1895.1", "1874.1", "1875.1", "301.1"]
+    },
+    {
+      "id": "sealdah-namkhana",
+      "name": "Sealdah–Namkhana",
+      "from": "Sealdah",
+      "to": "Namkhana",
+      "status": "operational",
+      "tracks": ["1895.1", "1874.1", "1875.1", "386.1", "386.52"]
+    },
+    {
+      "id": "circular",
+      "name": "Circular Railway",
+      "from": "Dum Dum",
+      "to": "Ballygunge",
+      "status": "operational",
+      "tracks": ["391.78", "391.1", "1908.1", "1908.3", "1908.48"]
+    }
+  ]
+}

@@ -18,6 +18,8 @@ export const CITIES = [
     operator: "DMRC",
     region: "North",
     bounds: [76.8, 28.25, 77.6, 28.95],
+    // Wider box used by the IRI suburban importer (Ghaziabad, Palwal, Rewari).
+    suburbanBounds: [76.6, 27.95, 77.75, 29.15],
     patterns: ["delhi metro", "delhi suburban", "\\brrts\\b", "namo bharat"],
     stats: { lines: 10, stations: 271, km: 374.47, opened: "2002-12-24", ridership: "2,032.3M (2024)" },
   },
@@ -98,6 +100,8 @@ export const CITIES = [
     operator: "MMRDA / MMRC",
     region: "West",
     bounds: [72.7, 18.82, 73.15, 19.4],
+    // Western/Central/Harbour suburban extent: Virar to Kasara, Karjat, Roha.
+    suburbanBounds: [72.75, 18.4, 73.55, 19.7],
     patterns: ["mumbai metro", "mumbai monorail", "mumbai suburban", "malanggad"],
     stats: { lines: 4, stations: 77, km: 91.48, opened: "2014-06-08", ridership: "273.8M (2024)" },
   },
@@ -168,6 +172,8 @@ export const CITIES = [
     operator: "BMRCL",
     region: "South",
     bounds: [77.3, 12.7, 77.9, 13.2],
+    // Existing IR commuter corridors: Tumakuru, Bangarpet, Hosur directions.
+    suburbanBounds: [77.0, 12.55, 78.3, 13.5],
     patterns: ["namma metro", "bengaluru metro", "bangalore metro", "bengaluru suburban"],
     stats: { lines: 3, stations: 85, km: 96.1, opened: "2011-10-20", ridership: "278.5M (2024)" },
   },
@@ -178,6 +184,8 @@ export const CITIES = [
     operator: "CMRL",
     region: "South",
     bounds: [80.0, 12.8, 80.4, 13.3],
+    // Suburban extent: Chengalpattu, Arakkonam, Gummidipoondi directions.
+    suburbanBounds: [79.6, 12.55, 80.35, 13.55],
     patterns: ["chennai metro", "chennai suburban", "chennai mrts", "mass rapid transit"],
     stats: { lines: 3, stations: 52, km: 68.7, opened: "2015-06-29", ridership: "111.9M (2025)" },
   },
@@ -208,6 +216,8 @@ export const CITIES = [
     operator: "Metro Railway, Indian Railways",
     region: "East",
     bounds: [88.1, 22.3, 88.6, 22.8],
+    // Howrah/Sealdah radials: Barddhaman, Ranaghat, Canning, Diamond Harbour.
+    suburbanBounds: [87.95, 22.1, 88.7, 23.35],
     patterns: ["kolkata metro", "kolkata suburban", "kolkata tram", "trams in kolkata"],
     stats: { lines: 5, stations: 58, km: 73.42, opened: "1984-10-24", ridership: "225.5M (2025)" },
   },

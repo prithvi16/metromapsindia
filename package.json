@@ -14,6 +14,8 @@
     "start": "node server.js",
     "typecheck": "tsc --noEmit",
     "data:fetch": "node scripts/fetch-rail.mjs",
+    "data:iri": "node scripts/fetch-iri.mjs",
+    "data:suburban": "node scripts/build-suburban.mjs",
     "data:build": "node scripts/build-cities.mjs",
     "data:refresh": "node scripts/fetch-rail.mjs && node scripts/build-cities.mjs",
     "data:gaps": "node scripts/report-gaps.mjs",

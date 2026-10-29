@@ -9,6 +9,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { CITIES, MODES, STATUSES } from "./cities.mjs";
 import { haversine, indexElements } from "./lib/overpass.mjs";
+import { assembleSuburban } from "./lib/suburban.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, "..");
@@ -662,6 +663,19 @@ async function main() {
       if (applied.lines.some((line) => line.curated)) {
         console.log(`    · curation applied (${(curationPatch.sources ?? []).length} sources)`);
       }
+    }
+
+    // Cities with an IRI suburban manifest use that network instead of OSM's
+    // route=train lines, so every corridor is drawn once in a single style.
+    const suburban = await assembleSuburban(city);
+    if (suburban.manifest && suburban.lines.length) {
+      const before = lines.length;
+      lines = lines.filter((line) => line.mode !== "suburban");
+      lines.push(...suburban.lines);
+      const replaced = before - lines.length + suburban.lines.length;
+      console.log(
+        `    · suburban: ${suburban.lines.length} IRI lines (replaced ${replaced} OSM)`,
+      );
     }
 
     // Simplify map geometry (~5 m) to keep the files small.

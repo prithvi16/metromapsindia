@@ -1,0 +1,69 @@
+{
+  "build": "1793079041",
+  "checkedAt": "2026-10-29",
+  "system": "Bengaluru Suburban Railway",
+  "operator": "Indian Railways (South Western Railway)",
+  "stationAliases": {
+    "KSR Bengaluru City Jn": "KSR Bengaluru",
+    "Yesvantpur Jn": "Yesvantpur",
+    "Bengaluru Cantt.": "Bengaluru Cantt",
+    "Karmelaram": "Carmelaram",
+    "Bangarapet Jn": "Bangarpet",
+    "Baiyyappanahalli": "Baiyappanahalli",
+    "Krishnarajapuram": "Krishnarajapura",
+    "Jnana Bharati Halt": "Jnanabharathi"
+  },
+  "lines": [
+    {
+      "id": "tumakuru",
+      "name": "Tumakuru Line",
+      "from": "KSR Bengaluru",
+      "to": "Tumakuru",
+      "status": "operational",
+      "tracks": ["845.1", "1968.1", "869.1", "306.1"]
+    },
+    {
+      "id": "bangarpet",
+      "name": "Bangarpet Line",
+      "from": "KSR Bengaluru",
+      "to": "Bangarpet",
+      "status": "operational",
+      "tracks": ["1251.1", "1251.98", "2003.1", "1955.1", "1184.1", "1184.149"]
+    },
+    {
+      "id": "hosur",
+      "name": "Hosur Line",
+      "from": "KSR Bengaluru",
+      "to": "Hosur",
+      "status": "operational",
+      "tracks": [
+        "1251.1",
+        "1251.98",
+        "2003.1",
+        "847.233",
+        "847.209",
+        "197.1",
+        "197.167",
+        "197.222",
+        "197.244",
+        "197.260"
+      ]
+    },
+    {
+      "id": "kengeri",
+      "name": "Kengeri Line",
+      "from": "KSR Bengaluru",
+      "to": "Kengeri",
+      "status": "operational",
+      "tracks": ["307.1"]
+    },
+    {
+      "id": "kolar",
+      "name": "Kolar Line",
+      "from": "Yesvantpur",
+      "to": "Kolar",
+      "status": "operational",
+      "tracks": ["847.1", "879.1", "246.1"]
+    }
+  ]
+}

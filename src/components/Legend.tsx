@@ -127,7 +127,9 @@ export default function Legend({
             ))}
           </section>
 
-          <p className="legend__source">{stationCount} stations · © OpenStreetMap</p>
+          <p className="legend__source">
+            {stationCount} stations · © OpenStreetMap · Suburban: India Rail Info
+          </p>
         </div>
       )}
     </aside>

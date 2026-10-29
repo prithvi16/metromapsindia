@@ -103,6 +103,8 @@ export const MODE_META: Record<
   { label: string; short: string; width: number; overlay?: number[] }
 > = {
   metro: { label: "Metro", short: "Metro", width: 5 },
+  // Suburban is deliberately one solid stroke in one colour (no overlay, no
+  // per-line colour): the whole commuter network reads as a single layer.
   suburban: { label: "Suburban rail", short: "Suburban", width: 4 },
   rrts: { label: "Regional rapid rail", short: "RRTS", width: 6.5 },
   monorail: { label: "Monorail", short: "Monorail", width: 4, overlay: [1.2, 2.2] },

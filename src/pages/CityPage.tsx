@@ -187,8 +187,13 @@ export default function CityPage() {
           <div>
             <h2>Data</h2>
             <p>
-              Lines and stations from OpenStreetMap contributors (ODbL). Network figures
-              from Wikipedia’s “Urban rail transit in India”, as of October 2026.
+              Metro, monorail and light-rail lines from OpenStreetMap contributors
+              (ODbL). Suburban linework and station coordinates from the{" "}
+              <a href="https://indiarailinfo.com/atlas" target="_blank" rel="noreferrer">
+                India Rail Info atlas
+              </a>
+              , drawn as a single teal line. Network figures from Wikipedia’s “Urban
+              rail transit in India”, as of October 2026.
             </p>
           </div>
         </section>

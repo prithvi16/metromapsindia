@@ -53,8 +53,9 @@ export default function SiteFooter() {
             monorail, light rail, regional rapid rail, trams and funiculars.
           </p>
           <p>
-            Every line on this site is drawn from OpenStreetMap data. Stations and
-            alignments are only as complete as the map, so coverage varies by city.
+            Metro and light-rail lines come from OpenStreetMap; suburban routes come
+            from the India Rail Info atlas. Stations and alignments are only as complete
+            as their source, so coverage varies by city.
           </p>
 
           <h3>Modes on this map</h3>
@@ -72,7 +73,8 @@ export default function SiteFooter() {
       <div className="site-footer__legal">
         <p>
           Map data © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>{" "}
-          contributors (ODbL). Basemap by{" "}
+          contributors (ODbL). Suburban linework ©{" "}
+          <a href="https://indiarailinfo.com/atlas">India Rail Info</a>. Basemap by{" "}
           <a href="https://openfreemap.org">OpenFreeMap</a>. Network figures from{" "}
           <a href="https://en.wikipedia.org/wiki/Urban_rail_transit_in_India">
             Wikipedia, “Urban rail transit in India”

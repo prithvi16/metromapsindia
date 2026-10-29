@@ -1,0 +1,63 @@
+{
+  "build": "1793079041",
+  "checkedAt": "2026-10-29",
+  "system": "Delhi Suburban Railway",
+  "operator": "Indian Railways (Northern Railway)",
+  "stationAliases": {
+    "Old Delhi Jn": "Delhi Junction",
+    "ZZ-Hazrat Nizamuddin": "Hazrat Nizamuddin",
+    "Delhi Cantt.": "Delhi Cantt",
+    "Adarsh Nagar Delhi": "Adarsh Nagar",
+    "Delhi Azadpur": "Azadpur"
+  },
+  "lines": [
+    {
+      "id": "ring",
+      "name": "Ring Railway",
+      "from": "New Delhi",
+      "to": "New Delhi",
+      "status": "operational",
+      "tracks": ["952.1", "927.1", "309.1", "1946.1", "1957.1", "1723.1", "1723.17"]
+    },
+    {
+      "id": "ghaziabad",
+      "name": "Ghaziabad Line",
+      "from": "Delhi Junction",
+      "to": "Ghaziabad",
+      "status": "operational",
+      "tracks": ["50.1", "1944.1", "1942.1", "1941.1", "697.1"]
+    },
+    {
+      "id": "palwal",
+      "name": "Palwal Line",
+      "from": "New Delhi",
+      "to": "Palwal",
+      "status": "operational",
+      "tracks": ["952.1", "927.1", "1837.1", "929.1"]
+    },
+    {
+      "id": "rewari",
+      "name": "Rewari Line",
+      "from": "Delhi Junction",
+      "to": "Rewari",
+      "status": "operational",
+      "tracks": ["421.1", "891.227", "891.1", "900.49", "900.1", "2018.1"]
+    },
+    {
+      "id": "panipat",
+      "name": "Panipat Line",
+      "from": "Delhi Junction",
+      "to": "Panipat Junction",
+      "status": "operational",
+      "tracks": ["420.1", "1706.1", "1706.24", "46.1", "1008.1"]
+    },
+    {
+      "id": "rohtak",
+      "name": "Rohtak Line",
+      "from": "Delhi Junction",
+      "to": "Rohtak",
+      "status": "operational",
+      "tracks": ["421.1", "1723.1", "1957.1", "964.1", "82.1", "82.86", "1232.1"]
+    }
+  ]
+}

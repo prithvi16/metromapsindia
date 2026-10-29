@@ -1,0 +1,69 @@
+{
+  "build": "1793079041",
+  "checkedAt": "2026-10-29",
+  "system": "Chennai Suburban Railway",
+  "operator": "Indian Railways (Southern Railway)",
+  "stationAliases": {
+    "MGR Chennai Ctrl": "MGR Central",
+    "Chennai Ctrl Suburban": "MGR Central",
+    "Chetpet": "Chennai Chetpet",
+    "Minambakkam": "Meenambakkam",
+    "Chintadripet": "Chintadaripet",
+    "Kasturibai Nagar": "Kasturiba Nagar",
+    "Puzhuthivakkam": "Puzhudivakkam",
+    "Tiruvottiyur": "Thiruvottriyur",
+    "Mundaka Kanni Amman Koil": "Mundakakanni Amman Koil",
+    "Gummidipundi": "Gummidipoondi"
+  },
+  "lines": [
+    {
+      "id": "south",
+      "name": "South Line",
+      "from": "Chennai Fort",
+      "to": "Chengalpattu",
+      "status": "operational",
+      "tracks": [
+        "1962.1",
+        "1962.101",
+        "1956.1",
+        "1956.248"
+      ]
+    },
+    {
+      "id": "north",
+      "name": "North Line",
+      "from": "MGR Central",
+      "to": "Gummidipoondi",
+      "status": "operational",
+      "tracks": [
+        "1959.1",
+        "1124.47",
+        "1435.233",
+        "1435.184"
+      ]
+    },
+    {
+      "id": "west",
+      "name": "West Line",
+      "from": "MGR Central",
+      "to": "Arakkonam",
+      "status": "operational",
+      "tracks": [
+        "1959.1",
+        "11.1"
+      ]
+    },
+    {
+      "id": "mrts",
+      "name": "MRTS",
+      "from": "Chennai Fort",
+      "to": "St Thomas Mount",
+      "status": "operational",
+      "tracks": [
+        "395.1",
+        "395.192",
+        "395.410"
+      ]
+    }
+  ]
+}

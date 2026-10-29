@@ -18,7 +18,8 @@ const TIMELINE = [
 
 const MODE_NOTES: Record<string, string> = {
   metro: "High-capacity rapid transit on a fully segregated right of way.",
-  suburban: "Commuter rail on the Indian Railways network, connecting suburbs to a city centre.",
+  suburban:
+    "Commuter rail on the Indian Railways network, connecting suburbs to a city centre. Every suburban route is drawn as one solid teal line, with no per-line colours or overlays.",
   rrts: "Higher-speed regional rapid rail linking a metropolis with nearby cities.",
   monorail: "Single-beam elevated transit, used where a full metro will not fit.",
   light_rail: "Metrolite: lighter rolling stock, mostly fenced, cheaper than a metro.",
@@ -93,6 +94,15 @@ export default function AboutPage() {
             whole lines. Cards and city pages say so rather than filling the gaps with
             guesses.
           </p>
+          <p>
+            Suburban rail is imported separately from the{" "}
+            <a href="https://indiarailinfo.com/atlas" target="_blank" rel="noreferrer">
+              India Rail Info atlas
+            </a>
+            : its vector tiles carry every track and station, and a per-city manifest
+            groups them into named corridors. Suburban lines are rendered as one solid
+            teal stroke so the commuter network reads as a single layer beneath the metro.
+          </p>
         </section>
 
         <section>
@@ -104,6 +114,11 @@ export default function AboutPage() {
                 OpenStreetMap contributors
               </a>{" "}
               under the ODbL, fetched via the Overpass API.
+            </li>
+            <li>
+              Suburban linework and station coordinates:{" "}
+              <a href="https://indiarailinfo.com/atlas">India Rail Info atlas</a>, ©
+              India Rail Info; used here with attribution.
             </li>
             <li>
               Basemap: <a href="https://openfreemap.org">OpenFreeMap</a> Positron, built
