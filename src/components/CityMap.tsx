@@ -61,7 +61,6 @@ type Props = {
   focus?: FocusPoint | null;
   focusLineId?: string | null;
   view?: ViewState | null;
-  fitRequest?: { mode: Mode; nonce: number } | null;
   onViewChange?: (view: ViewState) => void;
 };
 
@@ -74,7 +73,6 @@ export default function CityMap({
   focus,
   focusLineId,
   view,
-  fitRequest,
   onViewChange,
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -486,18 +484,6 @@ export default function CityMap({
         .addTo(map);
     }
   }, [ready, focusLineId, all]);
-
-  // "Show suburban" / fit-to-mode requests from the page.
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map || !ready || !fitRequest) return;
-    const lines = city.lines.filter(
-      (line) => line.mode === fitRequest.mode && visibleStatuses.includes(line.status),
-    );
-    const bounds = boundsForLines(lines);
-    if (bounds) map.fitBounds(bounds, { padding: 50, maxZoom: 13 });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ready, fitRequest, city]);
 
   const fitVisible = () => {
     const map = mapRef.current;

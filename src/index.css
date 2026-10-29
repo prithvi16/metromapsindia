@@ -1158,44 +1158,6 @@ a.city-card:hover {
   background: #fff;
 }
 
-.suburban-callout {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  margin: 14px 0;
-  padding: 11px 14px;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: #fff;
-}
-
-.suburban-callout strong {
-  display: block;
-  font-size: 0.82rem;
-}
-
-.suburban-callout span {
-  font-size: 0.74rem;
-  color: var(--muted);
-}
-
-.suburban-callout button {
-  flex: none;
-  padding: 7px 12px;
-  border-radius: 999px;
-  border: 1px solid #0f766e;
-  background: #0f766e;
-  color: #fff;
-  font: inherit;
-  font-size: 0.74rem;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.suburban-callout button:hover {
-  background: #115e59;
-}
 
 .city-page__official {
   margin: 10px 0 0;
@@ -1228,11 +1190,6 @@ a.city-card:hover {
   .site-nav__search-label,
   .site-nav__search kbd {
     display: none;
-  }
-
-  .suburban-callout {
-    align-items: flex-start;
-    flex-direction: column;
   }
 
   .crumbs {

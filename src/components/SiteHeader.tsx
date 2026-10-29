@@ -26,7 +26,12 @@ export default function SiteHeader({ breadcrumbs }: Props) {
     <>
       <header className="site-header">
         <div className="site-header__inner">
-          <Link to="/" className="brand" aria-label="MetroMaps India home">
+          <Link
+            to="/"
+            className="brand"
+            aria-label="MetroMaps India home"
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          >
             <span className="brand__mark" aria-hidden="true">
               ◉
             </span>

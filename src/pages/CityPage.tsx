@@ -5,7 +5,7 @@ import Legend from "../components/Legend";
 import SiteFooter from "../components/SiteFooter";
 import SiteHeader from "../components/SiteHeader";
 import type { AllData, CityData, Mode, Status } from "../lib/cities";
-import { DEFAULT_HIDDEN_MODES, MODE_META, STATUS_ORDER, lineLengthKm } from "../lib/cities";
+import { DEFAULT_HIDDEN_MODES, MODE_META, STATUS_ORDER } from "../lib/cities";
 import { findCity, loadCityView } from "../lib/cityData";
 import { usePageMeta } from "../lib/meta";
 
@@ -22,7 +22,6 @@ export default function CityPage() {
   const [visibleModes, setVisibleModes] = useState<Mode[]>([]);
   const [visibleStatuses, setVisibleStatuses] = useState<Status[]>(STATUS_ORDER);
   const [hiddenLines, setHiddenLines] = useState<string[]>([]);
-  const [fitRequest, setFitRequest] = useState<{ mode: Mode; nonce: number } | null>(null);
 
   const updateParams = (updates: Record<string, string | null>) => {
     setParams(
@@ -137,7 +136,6 @@ export default function CityPage() {
 
   const breadcrumbs = [
     { label: "Home", to: "/" },
-    { label: summary.region, to: `/?region=${summary.region}` },
     { label: summary.city },
   ];
 
@@ -191,12 +189,6 @@ export default function CityPage() {
       ? { z: viewZ, lat: viewLat, lng: viewLng }
       : null;
 
-  const suburban = city?.lines.filter((line) => line.mode === "suburban") ?? [];
-  const suburbanStations = new Set(
-    suburban.flatMap((line) => line.stations.map((station) => station.name)),
-  ).size;
-  const suburbanKm = suburban.reduce((sum, line) => sum + lineLengthKm(line), 0);
-
   return (
     <>
       <SiteHeader breadcrumbs={breadcrumbs} />
@@ -244,31 +236,6 @@ export default function CityPage() {
           </dl>
         </div>
 
-        {suburban.length > 0 && (
-          <div className="suburban-callout">
-            <div>
-              <strong>Suburban network</strong>
-              <span>
-                {suburban.length} lines · {suburbanStations} stations ·{" "}
-                {suburbanKm.toFixed(0)} km
-              </span>
-            </div>
-            <button
-              type="button"
-              onClick={() => {
-                if (!visibleModes.includes("suburban")) {
-                  const next: Mode[] = [...visibleModes, "suburban"];
-                  setVisibleModes(next);
-                  updateParams({ mode: next.join(",") });
-                }
-                setFitRequest({ mode: "suburban", nonce: Date.now() });
-              }}
-            >
-              Show on map
-            </button>
-          </div>
-        )}
-
         <div className="city-page__map">
           {error && <p className="city-page__error">Could not load map data: {error}</p>}
           {!city && !error && <p className="city-page__loading">Loading network…</p>}
@@ -283,7 +250,6 @@ export default function CityPage() {
                 focus={focus}
                 focusLineId={focusLineId}
                 view={view}
-                fitRequest={fitRequest}
                 onViewChange={(next) =>
                   updateParams({
                     z: next.z.toFixed(2),
