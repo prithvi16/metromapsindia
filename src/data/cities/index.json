@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-29T13:45:01.794Z",
+  "generatedAt": "2026-10-29T13:52:08.015Z",
   "source": "OpenStreetMap contributors, ODbL 1.0 (via Overpass API)",
   "cities": [
     {
@@ -9,12 +9,12 @@
       "operator": "DMRC",
       "region": "North",
       "bounds": [
-        76.8639,
-        28.2888,
-        77.7642,
-        29.1225
+        76.8844,
+        28.3117,
+        77.4501,
+        28.7729
       ],
-      "minZoom": 9.5,
+      "minZoom": 10,
       "stats": {
         "lines": 10,
         "stations": 271,
@@ -423,12 +423,12 @@
       "operator": "MMRDA / MMRC",
       "region": "West",
       "bounds": [
-        72.7648,
-        18.8241,
-        73.5202,
-        19.7033
+        72.804,
+        18.8852,
+        72.99,
+        19.3132
       ],
-      "minZoom": 9.5,
+      "minZoom": 10.5,
       "stats": {
         "lines": 4,
         "stations": 77,
@@ -844,12 +844,12 @@
       "operator": "Maha Metro",
       "region": "West",
       "bounds": [
-        73.3712,
-        18.481,
-        73.9442,
-        18.7864
+        73.7908,
+        18.4877,
+        73.921,
+        18.6418
       ],
-      "minZoom": 10,
+      "minZoom": 12,
       "stats": {
         "lines": 2,
         "stations": 28,
@@ -1386,12 +1386,12 @@
       "operator": "HMRL",
       "region": "South",
       "bounds": [
-        78.2979,
-        17.2454,
-        78.5774,
-        17.5161
+        78.3599,
+        17.3378,
+        78.5733,
+        17.5114
       ],
-      "minZoom": 11,
+      "minZoom": 11.5,
       "stats": {
         "lines": 3,
         "stations": 59,

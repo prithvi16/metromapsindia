@@ -560,7 +560,11 @@ async function main() {
       lines.length === 0 ? "none" : stations.length < stats.stations * 0.6 ? "partial" : "full";
 
     const modes = [...new Set(lines.map((l) => l.mode))];
-    const viewBounds = boundsFromLines(lines, city.bounds);
+    // Frame the urban core, not the longest commuter corridor: an RRTS or
+    // suburban line to a satellite town would zoom the page out too far.
+    const coreModes = new Set(["metro", "monorail", "light_rail", "tram", "funicular"]);
+    const core = lines.filter((line) => coreModes.has(line.mode));
+    const viewBounds = boundsFromLines(core.length ? core : lines, city.bounds);
     const cityData = {
       slug: city.slug,
       city: city.city,

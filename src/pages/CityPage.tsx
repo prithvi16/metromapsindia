@@ -174,8 +174,8 @@ export default function CityPage() {
               {city?.lines.length ?? summary.counts.lines} mapped lines serving{" "}
               {city?.stations.length ?? summary.counts.stations} stations across{" "}
               {summary.counts.modes.map((mode) => MODE_META[mode].label).join(", ") || "—"}.
-              Zoom is limited to the {summary.city} region; use the layer panel to switch
-              modes and statuses on and off.
+              Zoom out to see neighbouring networks, or click another city's line to open
+              it. The layer panel switches modes and statuses on and off.
             </p>
             {summary.coverage === "partial" && (
               <p className="notice">

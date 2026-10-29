@@ -131,7 +131,7 @@ export default function CityMap({ city, all, visibleModes, visibleStatuses, hidd
         9,
         ["+", ["*", ["get", "w"], ["case", isActive, 0.55, 0.4]], 2.4],
         13,
-        ["+", ["*", ["get", "w"], ["case", isActive, 1, 0.8]], 3],
+        ["+", ["*", ["get", "w"], ["case", isActive, 1, 0.85]], 3],
         17,
         ["+", ["*", ["get", "w"], ["case", isActive, 1.8, 1.3]], 3],
       ] as unknown as ExpressionSpecification;
@@ -144,7 +144,7 @@ export default function CityMap({ city, all, visibleModes, visibleStatuses, hidd
         paint: {
           "line-color": "#ffffff",
           "line-width": casingWidth,
-          "line-opacity": fade(0.92, 0.3),
+          "line-opacity": fade(0.92, 0.42),
         },
       });
 
@@ -157,7 +157,7 @@ export default function CityMap({ city, all, visibleModes, visibleStatuses, hidd
         paint: {
           "line-color": ["get", "colour"],
           "line-width": width,
-          "line-opacity": fade(1, 0.3),
+          "line-opacity": fade(1, 0.45),
         },
       });
 
@@ -171,7 +171,7 @@ export default function CityMap({ city, all, visibleModes, visibleStatuses, hidd
           "line-color": ["get", "colour"],
           "line-width": width,
           "line-dasharray": [2, 1.4],
-          "line-opacity": fade(1, 0.3),
+          "line-opacity": fade(1, 0.45),
         },
       });
 
@@ -185,7 +185,7 @@ export default function CityMap({ city, all, visibleModes, visibleStatuses, hidd
           "line-color": ["get", "colour"],
           "line-width": width,
           "line-dasharray": [0.8, 1.8],
-          "line-opacity": fade(0.6, 0.2),
+          "line-opacity": fade(0.6, 0.3),
         },
       });
 
@@ -198,7 +198,7 @@ export default function CityMap({ city, all, visibleModes, visibleStatuses, hidd
         paint: {
           "line-color": "#ffffff",
           "line-width": ["interpolate", ["linear"], ["zoom"], 9, 1, 13, 1.6, 17, 2.6],
-          "line-opacity": fade(0.9, 0.3),
+          "line-opacity": fade(0.9, 0.45),
         },
       });
 
@@ -217,7 +217,7 @@ export default function CityMap({ city, all, visibleModes, visibleStatuses, hidd
             "line-color": "#ffffff",
             "line-width": ["interpolate", ["linear"], ["zoom"], 9, 0.8, 13, 1.3, 17, 2.2],
             "line-dasharray": overlay.dash,
-            "line-opacity": fade(0.85, 0.3),
+            "line-opacity": fade(0.85, 0.45),
           },
         });
       }
