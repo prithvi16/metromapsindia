@@ -26,8 +26,11 @@ function queryFor(bounds) {
 (
   relation["route"~"^(subway|light_rail|monorail|tram|funicular)$"](${bbox});
   relation["route"~"^(train|ferry)$"]["network"~"Suburban|MMTS|MRTS|RRTS|Namo Bharat|Monorail|Metro|Tram|Funicular|Water",i](${bbox});
-  node["railway"~"^(station|halt|tram_stop)$"](${bbox});
+  relation["route"="construction"](${bbox});
+  relation["construction:route"~"^(subway|light_rail|monorail|tram)$"](${bbox});
+  node["railway"~"^(station|halt|tram_stop|construction)$"](${bbox});
   node["public_transport"="station"](${bbox});
+  node["construction:railway"~"^(station|halt)$"](${bbox});
 );
 out body;
 >;

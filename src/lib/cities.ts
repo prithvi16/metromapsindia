@@ -15,7 +15,7 @@ export type Status = "operational" | "under-construction" | "planned";
 export type StationRef = { name: string; lat: number; lon: number };
 
 export type CityLine = {
-  osmId: number;
+  osmId: number | string;
   /** Slug of the city this line belongs to (set in the combined dataset). */
   city?: string;
   system: string;

@@ -1,0 +1,17 @@
+{
+  "_comment": "Template only — copy to <slug>.json and replace every value with sourced data. This file is ignored by the build.",
+  "checkedAt": "YYYY-MM-DD",
+  "sources": ["https://operator.example/route-map.pdf"],
+  "lines": [
+    {
+      "match": { "ref": "LINE-REF" },
+      "status": "under-construction",
+      "stationsMode": "replace",
+      "stations": [
+        { "name": "Station name", "lat": 0.0, "lon": 0.0 }
+      ],
+      "confidence": "high",
+      "notes": "Which page/table the station list came from."
+    }
+  ]
+}

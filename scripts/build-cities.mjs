@@ -13,6 +13,7 @@ import { haversine, indexElements } from "./lib/overpass.mjs";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, "..");
 const rawDir = path.join(__dirname, "out", "raw");
+const curationDir = path.join(__dirname, "curation");
 const outDir = path.join(root, "src", "data", "cities");
 
 const MODE_COLOURS = {
@@ -82,9 +83,12 @@ function colourFor(tags, mode) {
 }
 
 function modeFor(tags) {
-  const route = tags.route;
   const net = `${tags.network ?? ""} ${tags.name ?? ""}`;
   if (/\b(rrts|rapidx|namo bharat|rapid rail)\b/i.test(net)) return "rrts";
+  const route =
+    tags.route === "construction"
+      ? (tags.construction ?? tags["construction:route"] ?? "")
+      : (tags["construction:route"] ?? tags.route);
   if (route === "subway") return "metro";
   if (route === "train") return /\b(rrts|namo bharat|rapid rail)\b/i.test(net) ? "rrts" : "suburban";
   if (route === "ferry") return "water_metro";
@@ -96,6 +100,7 @@ function modeFor(tags) {
 }
 
 function statusFor(tags) {
+  if (tags.route === "construction") return "under-construction";
   if (tags.state === "construction" || tags.construction || tags["construction:route"]) {
     return "under-construction";
   }
@@ -309,6 +314,131 @@ function masterStations(slug) {
   );
 }
 
+async function loadCuration(slug) {
+  try {
+    const raw = await readFile(path.join(curationDir, `${slug}.json`), "utf8");
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}
+
+function matchesPatch(line, match = {}) {
+  if (match.ref != null && String(line.ref ?? "") !== String(match.ref)) return false;
+  if (match.mode && line.mode !== match.mode) return false;
+  if (
+    match.nameIncludes &&
+    !line.name.toLowerCase().includes(String(match.nameIncludes).toLowerCase())
+  ) {
+    return false;
+  }
+  return true;
+}
+
+function validStation(station, city, warnings, label) {
+  const [west, south, east, north] = city.bounds;
+  const pad = 0.6;
+  if (
+    !station?.name ||
+    !Number.isFinite(station.lat) ||
+    !Number.isFinite(station.lon)
+  ) {
+    warnings.push(`${label}: station needs name, lat and lon`);
+    return null;
+  }
+  if (
+    station.lat < south - pad ||
+    station.lat > north + pad ||
+    station.lon < west - pad ||
+    station.lon > east + pad
+  ) {
+    warnings.push(`${label}: "${station.name}" falls outside ${city.city}`);
+    return null;
+  }
+  return {
+    name: station.name,
+    lat: Number(station.lat.toFixed(6)),
+    lon: Number(station.lon.toFixed(6)),
+  };
+}
+
+/**
+ * Apply a hand-checked patch from scripts/curation/<slug>.json. Every entry is
+ * expected to carry a source URL in the file's `sources` array.
+ */
+function applyCuration(lines, curation, city) {
+  const warnings = [];
+
+  for (const patch of curation.lines ?? []) {
+    const targets = lines.filter((line) => matchesPatch(line, patch.match));
+    if (!targets.length) {
+      warnings.push(`no line matched ${JSON.stringify(patch.match)}`);
+      continue;
+    }
+    for (const line of targets) {
+      if (patch.status) line.status = patch.status;
+      if (patch.colour) line.colour = patch.colour;
+      if (patch.from) line.from = patch.from;
+      if (patch.to) line.to = patch.to;
+      if (Array.isArray(patch.stations)) {
+        const stations = patch.stations
+          .map((station) => validStation(station, city, warnings, line.ref ?? line.name))
+          .filter(Boolean);
+        if (patch.stationsMode === "append") {
+          const seen = new Set(line.stations.map((s) => s.name.toLowerCase()));
+          for (const station of stations) {
+            if (!seen.has(station.name.toLowerCase())) line.stations.push(station);
+          }
+        } else {
+          line.stations = stations;
+        }
+      }
+      line.curated = true;
+    }
+  }
+
+  for (const add of curation.addLines ?? []) {
+    const stations = (add.stations ?? [])
+      .map((station) => validStation(station, city, warnings, add.name))
+      .filter(Boolean);
+
+    let geometry = add.geometry ?? [];
+    if (geometry.length && typeof geometry[0][0] === "number") geometry = [geometry];
+    if (!geometry.length) warnings.push(`addLines "${add.name}" has no geometry`);
+
+    lines.push({
+      osmId: add.osmId ?? `curated:${city.slug}:${add.ref ?? add.name}`,
+      system: add.system ?? city.system,
+      mode: add.mode ?? "metro",
+      name: add.name,
+      ref: add.ref ?? null,
+      colour: add.colour ?? "#64748b",
+      from: add.from ?? null,
+      to: add.to ?? null,
+      operator: add.operator ?? city.operator,
+      status: add.status ?? "under-construction",
+      openingDate: add.openingDate ?? null,
+      geometry: geometry.map((segment) =>
+        segment.map(([lat, lon]) => [Number(lat), Number(lon)]),
+      ),
+      stations,
+      curated: true,
+    });
+  }
+
+  for (const drop of curation.dropLines ?? []) {
+    const before = lines.length;
+    for (let i = lines.length - 1; i >= 0; i--) {
+      if (matchesPatch(lines[i], drop.match)) lines.splice(i, 1);
+    }
+    if (lines.length === before) {
+      warnings.push(`drop matched nothing: ${JSON.stringify(drop.match)}`);
+    }
+  }
+
+  return { lines, warnings };
+}
+
 async function loadRaw(slug) {
   try {
     return JSON.parse(await readFile(path.join(rawDir, `${slug}.json`), "utf8"));
@@ -520,9 +650,19 @@ async function main() {
       deduped.push(line);
     }
 
-    const lines = deduped.sort(
+    let lines = deduped.sort(
       (a, b) => MODES.findIndex((m) => m.id === a.mode) - MODES.findIndex((m) => m.id === b.mode),
     );
+
+    const curationPatch = await loadCuration(city.slug);
+    if (curationPatch) {
+      const applied = applyCuration(lines, curationPatch, city);
+      lines = applied.lines;
+      for (const warning of applied.warnings) console.log(`    ! ${warning}`);
+      if (applied.lines.some((line) => line.curated)) {
+        console.log(`    · curation applied (${(curationPatch.sources ?? []).length} sources)`);
+      }
+    }
 
     // Simplify map geometry (~5 m) to keep the files small.
     for (const line of lines) {

@@ -112,8 +112,9 @@ npm run data:refresh
 
 1. **Fetch** (`fetch-rail.mjs`) — one Overpass query per city region, cached under
    `scripts/out/raw/<slug>.json`. Queries cover subway, light rail, monorail, tram,
-   funicular, and the `route=train` / `route=ferry` relations whose `network` looks like
-   suburban rail, RRTS or water metro.
+   funicular, `route=construction` relations and construction-tagged station nodes, plus
+   the `route=train` / `route=ferry` relations whose `network` looks like suburban rail,
+   RRTS or water metro.
 2. **Assign** (`build-cities.mjs`) — relations are matched to a city by `network` tag,
    with a proximity fallback. Satellite systems are matched first so "Navi Mumbai Metro"
    never lands in Mumbai.
@@ -124,6 +125,32 @@ npm run data:refresh
    gaps (dropped duplicate route masters, status overrides, line renumbering).
 5. **Build** — geometry is simplified (~5 m), per-city JSON is written, and the index
    gets stats, `minZoom` and an SVG preview projected with Web Mercator.
+
+### Cleaning up the data
+
+OSM gaps are found and fixed with three tools:
+
+```bash
+npm run data:gaps                       # prioritised list of gaps, all cities
+npm run data:gaps -- --city=mumbai      # one city
+npm run data:geocode -- --city=mumbai --names="DN Nagar,ESIC Nagar"
+```
+
+`scripts/report-gaps.mjs` flags under-construction lines with no stations, stations
+more than 2 km from their own line, broken geometry and coverage shortfalls.
+
+Fixes live in `scripts/curation/<slug>.json` — hand-checked patches with a `sources`
+array, merged over the OSM data by `npm run data:build`. See
+`scripts/curation/README.md` for the schema.
+
+The **transit-curator** subagent (`.opencode/agents/transit-curator.md`) automates the
+research loop: read the gap report, open operator documents, geocode station names,
+write the patch, rebuild, and re-check the gap. It can only edit `scripts/curation/`,
+so it cannot change the app. Ask for it with:
+
+```text
+Use the transit-curator subagent on Mumbai — the under-construction lines are missing stations.
+```
 
 ### Coverage
 
