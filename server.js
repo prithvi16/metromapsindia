@@ -17,6 +17,9 @@ app.use(
       if (filePath.endsWith(".html")) {
         res.setHeader("Cache-Control", "no-cache");
       }
+      // MapLibre loads its worker through a blob module, which is an opaque
+      // origin in some browsers, so the worker script needs to be CORS-readable.
+      res.setHeader("Access-Control-Allow-Origin", "*");
     },
   }),
 );
@@ -29,6 +32,11 @@ app.use((req, res, next) => {
   });
 });
 
-app.listen(port, () => {
+const server = app.listen(port, () => {
   console.log(`MetroMaps India running at http://localhost:${port}`);
 });
+
+// Keep-alive must outlast the browser's idle timeout, otherwise Chrome can reuse
+// a socket the server has already closed and the request hangs.
+server.keepAliveTimeout = 65_000;
+server.headersTimeout = 66_000;

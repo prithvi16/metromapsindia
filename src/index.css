@@ -35,6 +35,8 @@ body {
   height: 100%;
 }
 
+/* ---------- header ---------- */
+
 .app-header {
   display: flex;
   align-items: center;
@@ -101,6 +103,8 @@ body {
   border-color: rgba(15, 23, 42, 0.2);
 }
 
+/* ---------- map ---------- */
+
 .map-wrapper {
   position: relative;
   flex: 1;
@@ -108,29 +112,202 @@ body {
 }
 
 .map {
-  width: 100%;
-  height: 100%;
-  background: #dfe6ee;
+  position: absolute;
+  inset: 0;
 }
 
-/* Keep Leaflet chrome in step with the rest of the UI. */
-.leaflet-container {
-  font-family: inherit;
+.maplibregl-ctrl-attrib {
+  font-size: 10px;
 }
 
-.leaflet-popup-content-wrapper {
+/* ---------- legend ---------- */
+
+.legend {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  width: 288px;
+  max-height: calc(100% - 32px);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
+  overflow: hidden;
+  z-index: 5;
+}
+
+.legend__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 550;
+  cursor: pointer;
+  transition:
+    background 120ms ease,
+    opacity 120ms ease;
+}
+
+.chip[aria-pressed="false"] {
+  opacity: 0.45;
+  background: transparent;
+}
+
+.chip:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.chip__swatch {
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+  flex: none;
+}
+
+.chip__swatch--operational {
+  background: #1f6feb;
+}
+
+.chip__swatch--under-construction {
+  background: repeating-linear-gradient(
+    90deg,
+    #1f6feb 0 2px,
+    transparent 2px 4px
+  );
+}
+
+.chip__swatch--planned {
+  background: repeating-linear-gradient(
+    90deg,
+    #94a3b8 0 1px,
+    transparent 1px 3px
+  );
+}
+
+.chip__count {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.legend__lines {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.legend__line {
+  display: grid;
+  grid-template-columns: 14px 1fr;
+  align-items: baseline;
+  gap: 0 8px;
+  padding: 5px 2px;
+  border-radius: 8px;
+}
+
+.legend__line:hover {
+  background: rgba(15, 23, 42, 0.04);
+}
+
+.legend__swatch {
+  width: 14px;
+  height: 4px;
+  border-radius: 2px;
+  align-self: center;
+}
+
+.legend__swatch--under-construction {
+  background-image: repeating-linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.85) 0 2px,
+    transparent 2px 5px
+  );
+}
+
+.legend__swatch--planned {
+  opacity: 0.6;
+}
+
+.legend__name {
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.legend__meta {
+  grid-column: 2;
+  font-size: 0.7rem;
+  color: var(--muted);
+  line-height: 1.35;
+}
+
+.legend__source {
+  margin: 0;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+  font-size: 0.68rem;
+  color: var(--muted);
+}
+
+/* ---------- popup ---------- */
+
+.maplibregl-popup-content {
+  padding: 9px 12px;
   border-radius: 10px;
   box-shadow: 0 8px 24px rgba(15, 23, 42, 0.18);
+  font-size: 0.82rem;
+  line-height: 1.35;
 }
 
-.leaflet-popup-content {
-  margin: 10px 14px;
-  font-size: 0.85rem;
-  font-weight: 550;
+.maplibregl-popup-content strong {
+  display: block;
+  font-weight: 650;
 }
 
-@media (max-width: 560px) {
+.metro-popup__lines {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+/* ---------- responsive ---------- */
+
+@media (max-width: 720px) {
   .header-link {
+    display: none;
+  }
+
+  .legend {
+    top: auto;
+    bottom: 16px;
+    left: 16px;
+    right: 16px;
+    width: auto;
+    max-height: 42%;
+  }
+
+  .legend__lines {
     display: none;
   }
 }

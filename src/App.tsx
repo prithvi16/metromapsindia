@@ -1,6 +1,20 @@
+import { useState } from "react";
+import Legend from "./components/Legend";
 import MumbaiMap from "./components/MumbaiMap";
+import type { MetroStatus } from "./lib/metro";
+import { metro } from "./lib/metro";
 
 export default function App() {
+  const [hidden, setHidden] = useState<MetroStatus[]>([]);
+
+  const toggle = (status: MetroStatus) => {
+    setHidden((current) =>
+      current.includes(status)
+        ? current.filter((s) => s !== status)
+        : [...current, status],
+    );
+  };
+
   return (
     <div className="app">
       <header className="app-header">
@@ -10,7 +24,9 @@ export default function App() {
           </span>
           <div>
             <h1>MetroMaps India</h1>
-            <p>Mumbai, Maharashtra</p>
+            <p>
+              Mumbai · {metro.lines.length} lines · {metro.stations.length} stations
+            </p>
           </div>
         </div>
         <a
@@ -24,7 +40,8 @@ export default function App() {
       </header>
 
       <main className="map-wrapper">
-        <MumbaiMap />
+        <MumbaiMap hidden={hidden} />
+        <Legend hidden={hidden} onToggle={toggle} />
       </main>
     </div>
   );
