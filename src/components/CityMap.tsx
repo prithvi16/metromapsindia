@@ -62,6 +62,7 @@ type Props = {
   focusLineId?: string | null;
   view?: ViewState | null;
   onViewChange?: (view: ViewState) => void;
+  onReady?: () => void;
 };
 
 export default function CityMap({
@@ -74,6 +75,7 @@ export default function CityMap({
   focusLineId,
   view,
   onViewChange,
+  onReady,
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
@@ -439,6 +441,7 @@ export default function CityMap({
       }
 
       setReady(true);
+      onReady?.();
       updateNearby();
     });
 
@@ -588,7 +591,7 @@ export default function CityMap({
     <div className="map-shell">
       <div
         ref={containerRef}
-        className="map"
+        className={`map ${ready ? "map--ready" : ""}`}
         role="application"
         aria-label={`Map of ${city.city} and neighbouring networks`}
       />

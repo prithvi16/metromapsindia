@@ -22,6 +22,8 @@ export default function CityPage() {
   const [visibleModes, setVisibleModes] = useState<Mode[]>([]);
   const [visibleStatuses, setVisibleStatuses] = useState<Status[]>(STATUS_ORDER);
   const [hiddenLines, setHiddenLines] = useState<string[]>([]);
+  const [mapReady, setMapReady] = useState(false);
+  const [slowMap, setSlowMap] = useState(false);
 
   const updateParams = (updates: Record<string, string | null>) => {
     setParams(
@@ -51,6 +53,8 @@ export default function CityPage() {
     let cancelled = false;
     setCity(null);
     setError(null);
+    setMapReady(false);
+    setSlowMap(false);
 
     loadCityView(slug)
       .then(({ city: data, all: allData }) => {
@@ -118,6 +122,16 @@ export default function CityPage() {
       cancelled = true;
     };
   }, [slug, summary]);
+
+  // If the basemap is slow, tell the user rather than spinning silently.
+  useEffect(() => {
+    if (mapReady || !city) {
+      setSlowMap(false);
+      return;
+    }
+    const timer = window.setTimeout(() => setSlowMap(true), 8000);
+    return () => window.clearTimeout(timer);
+  }, [mapReady, city]);
 
   if (!summary) {
     return (
@@ -238,7 +252,6 @@ export default function CityPage() {
 
         <div className="city-page__map">
           {error && <p className="city-page__error">Could not load map data: {error}</p>}
-          {!city && !error && <p className="city-page__loading">Loading network…</p>}
           {city && all && (
             <>
               <CityMap
@@ -250,6 +263,7 @@ export default function CityPage() {
                 focus={focus}
                 focusLineId={focusLineId}
                 view={view}
+                onReady={() => setMapReady(true)}
                 onViewChange={(next) => {
                   // A late map event must not rewrite the URL after the user
                   // has navigated away from this city.
@@ -289,6 +303,18 @@ export default function CityPage() {
                 stationCount={city.stations.length}
               />
             </>
+          )}
+          {!error && (
+            <div
+              className={`map-loading ${mapReady ? "map-loading--hidden" : ""}`}
+              role="status"
+              aria-live="polite"
+            >
+              <span className="map-loading__spinner" aria-hidden="true" />
+              <span className="map-loading__label">
+                {slowMap ? "Still loading the basemap…" : "Loading map…"}
+              </span>
+            </div>
           )}
         </div>
 
