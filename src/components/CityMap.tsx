@@ -94,18 +94,34 @@ export default function CityMap({
       style: STYLE_URL,
       ...(view
         ? { center: [view.lng, view.lat] as [number, number], zoom: view.z }
-        : {
-            bounds: [
-              [west, south],
-              [east, north],
-            ] as [[number, number], [number, number]],
-            fitBoundsOptions: { padding: 40, maxZoom: 12.5 },
-          }),
+        : {}),
       minZoom: NATIONAL_MIN_ZOOM,
       maxZoom: 18,
       maxBounds: INDIA_BOUNDS,
       attributionControl: { compact: true },
     });
+    // The constructor `bounds` option is only honoured after the style loads,
+    // which leaves the first frame at the national view (or waits forever if
+    // the basemap is slow). Fit the city as soon as the map has a real layout
+    // box, with a timer fallback for throttled/background tabs.
+    if (!view) {
+      let fitted = false;
+      const fitCity = () => {
+        if (fitted || mapRef.current !== map) return;
+        fitted = true;
+        map.resize();
+        map.fitBounds(
+          [
+            [west, south],
+            [east, north],
+          ],
+          { padding: 40, maxZoom: 12.5, animate: false },
+        );
+      };
+      map.once("resize", fitCity);
+      map.once("load", fitCity);
+      window.setTimeout(fitCity, 250);
+    }
     mapRef.current = map;
     if (import.meta.env.DEV) {
       (window as unknown as { __map?: MapLibreMap }).__map = map;

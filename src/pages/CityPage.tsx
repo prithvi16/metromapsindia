@@ -174,11 +174,20 @@ export default function CityPage() {
         }
       : null;
   const focusLineId = params.get("line");
-  const viewZ = Number(params.get("z"));
-  const viewLat = Number(params.get("lat"));
-  const viewLng = Number(params.get("lng"));
+  const rawZ = params.get("z");
+  const rawLat = params.get("lat");
+  const rawLng = params.get("lng");
+  const viewZ = Number(rawZ);
+  const viewLat = Number(rawLat);
+  const viewLng = Number(rawLng);
+  // Number(null) is 0, so test the raw params before trusting the numbers.
   const view =
-    Number.isFinite(viewZ) && Number.isFinite(viewLat) && Number.isFinite(viewLng)
+    rawZ != null &&
+    rawLat != null &&
+    rawLng != null &&
+    Number.isFinite(viewZ) &&
+    Number.isFinite(viewLat) &&
+    Number.isFinite(viewLng)
       ? { z: viewZ, lat: viewLat, lng: viewLng }
       : null;
 
