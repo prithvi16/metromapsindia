@@ -1,40 +1,55 @@
 {
   "name": "metromapsindia",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "Interactive OpenStreetMap based web app for Indian cities",
   "type": "module",
   "engines": {
     "node": ">=20"
   },
+  "packageManager": "npm@11.11.0",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && vite build",
+    "build": "npm run typecheck && vite build && npm run build:server",
+    "build:server": "tsc -p tsconfig.server.json",
     "preview": "vite preview",
-    "start": "node server.js",
-    "typecheck": "tsc --noEmit",
-    "data:fetch": "node scripts/fetch-rail.mjs",
-    "data:iri": "node scripts/fetch-iri.mjs",
-    "data:suburban": "node scripts/build-suburban.mjs",
-    "data:build": "node scripts/build-cities.mjs",
-    "data:refresh": "node scripts/fetch-rail.mjs && node scripts/build-cities.mjs",
-    "data:gaps": "node scripts/report-gaps.mjs",
-    "data:geocode": "node scripts/geocode.mjs"
+    "start": "node .build/server.js",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.scripts.json",
+    "lint": "biome check .",
+    "format": "biome check --write .",
+    "test": "vitest run",
+    "check": "npm run typecheck && npm run lint && npm run validate:data && npm test",
+    "validate:data": "tsx scripts/validate-data.ts",
+    "data:fetch": "tsx scripts/fetch-rail.ts",
+    "data:iri": "tsx scripts/fetch-iri.ts",
+    "data:iri-detail": "tsx scripts/iri-save-detail.ts",
+    "data:suburban": "tsx scripts/build-suburban.ts",
+    "data:build": "tsx scripts/build-cities.ts",
+    "data:refresh": "npm run data:fetch && npm run data:build",
+    "data:gaps": "tsx scripts/report-gaps.ts",
+    "data:geocode": "tsx scripts/geocode.ts"
   },
   "dependencies": {
+    "@mapbox/vector-tile": "^3.0.0",
     "express": "^5.3.0",
-    "maplibre-gl": "^5.24.0",
+    "maplibre-gl": "^6.16.0",
+    "pbf": "^5.1.2",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
-    "react-router-dom": "^7.18.5"
+    "react-router-dom": "^7.18.5",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.6.4",
+    "@types/express": "^5.0.6",
     "@types/geojson": "^7946.0.16",
     "@types/node": "^26.6.6",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.2",
+    "tsx": "^4.23.15",
     "typescript": "^7.0.2",
-    "vite": "^8.3.5"
+    "vite": "^8.3.5",
+    "vitest": "^5.0.5"
   }
 }

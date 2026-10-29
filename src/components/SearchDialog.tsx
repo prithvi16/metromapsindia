@@ -1,8 +1,14 @@
-import { useEffect, useMemo, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from "react";
+import {
+  type KeyboardEvent as ReactKeyboardEvent,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useNavigate } from "react-router-dom";
-import type { AllData, Mode } from "../lib/cities";
+import type { Mode, SearchIndex } from "../../shared/schema";
 import { MODE_META } from "../lib/cities";
-import { cityIndex, loadAll } from "../lib/cityData";
+import { cityIndex, loadSearchIndex } from "../lib/cityData";
 
 type Result = {
   kind: "city" | "line" | "station";
@@ -13,15 +19,9 @@ type Result = {
 
 const LIMIT = 18;
 
-export default function SearchDialog({
-  open,
-  onClose,
-}: {
-  open: boolean;
-  onClose: () => void;
-}) {
+export default function SearchDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
   const navigate = useNavigate();
-  const [data, setData] = useState<AllData | null>(null);
+  const [search, setSearch] = useState<SearchIndex | null>(null);
   const [query, setQuery] = useState("");
   const [active, setActive] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -32,8 +32,10 @@ export default function SearchDialog({
     setQuery("");
     setActive(0);
     const timer = window.setTimeout(() => inputRef.current?.focus(), 30);
-    if (!data) {
-      loadAll().then(setData).catch(() => setData(null));
+    if (!search) {
+      loadSearchIndex()
+        .then(setSearch)
+        .catch(() => setSearch(null));
     }
     return () => window.clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -88,28 +90,27 @@ export default function SearchDialog({
       }
     }
 
-    if (data) {
-      for (const line of data.lines) {
-        const haystack =
-          `${line.name} ${line.ref ?? ""} ${line.system} ${line.from ?? ""} ${line.to ?? ""} ${MODE_META[line.mode].label} ${MODE_META[line.mode].short}`.toLowerCase();
-        if (!haystack.includes(q)) continue;
-        out.push({
-          kind: "line",
-          label: line.ref ? `${line.name}` : line.name,
-          sub: `${cityName.get(line.city ?? "") ?? line.city} · ${MODE_META[line.mode].label}${line.from && line.to ? ` · ${line.from} → ${line.to}` : ""}`,
-          to: `/city/${line.city}?line=${encodeURIComponent(String(line.osmId))}`,
-        });
-      }
-      for (const station of data.stations) {
-        const stationHaystack =
-          `${station.name} ${station.modes.map((mode) => MODE_META[mode].label).join(" ")}`.toLowerCase();
-        if (!stationHaystack.includes(q)) continue;
-        out.push({
-          kind: "station",
-          label: station.name,
-          sub: `${cityName.get(station.city ?? "") ?? station.city} · ${station.modes.map((mode: Mode) => MODE_META[mode].short).join(", ")}`,
-          to: `/city/${station.city}?focus=${station.lat.toFixed(5)},${station.lon.toFixed(5)}&z=15&name=${encodeURIComponent(station.name)}`,
-        });
+    if (search) {
+      for (const entry of search.entries) {
+        if (entry.kind === "line") {
+          if (!entry.haystack.includes(q)) continue;
+          out.push({
+            kind: "line",
+            label: entry.label,
+            sub: `${cityName.get(entry.city) ?? entry.city} · ${MODE_META[entry.mode].label}${entry.from && entry.to ? ` · ${entry.from} → ${entry.to}` : ""}`,
+            to: `/city/${entry.city}?line=${encodeURIComponent(entry.id)}`,
+          });
+        } else {
+          if (!entry.haystack.includes(q)) continue;
+          out.push({
+            kind: "station",
+            label: entry.name,
+            sub: `${cityName.get(entry.city) ?? entry.city} · ${entry.modes
+              .map((mode: Mode) => MODE_META[mode].short)
+              .join(", ")}`,
+            to: `/city/${entry.city}?focus=${entry.lat.toFixed(5)},${entry.lon.toFixed(5)}&z=15&name=${encodeURIComponent(entry.name)}`,
+          });
+        }
       }
     }
 
@@ -120,7 +121,7 @@ export default function SearchDialog({
       return 2;
     };
     return out.sort((a, b) => rank(a) - rank(b) || a.label.localeCompare(b.label)).slice(0, LIMIT);
-  }, [query, data, cityName]);
+  }, [query, search, cityName]);
 
   useEffect(() => {
     setActive(0);
@@ -153,7 +154,12 @@ export default function SearchDialog({
 
   return (
     <div className="search-overlay" role="dialog" aria-modal="true" aria-label="Search">
-      <button type="button" className="search-overlay__scrim" aria-label="Close search" onClick={onClose} />
+      <button
+        type="button"
+        className="search-overlay__scrim"
+        aria-label="Close search"
+        onClick={onClose}
+      />
       <div className="search-panel">
         <input
           ref={inputRef}
@@ -169,7 +175,7 @@ export default function SearchDialog({
         <ul id="search-results" ref={listRef} className="search-results">
           {results.length === 0 && (
             <li className="search-results__empty">
-              {data || query.trim() === "" ? "No matches." : "Loading network data…"}
+              {search || query.trim() === "" ? "No matches." : "Loading network data…"}
             </li>
           )}
           {results.map((result, index) => (

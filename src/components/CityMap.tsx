@@ -1,24 +1,18 @@
-import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import {
+  type ExpressionSpecification,
+  type FilterSpecification,
+  type GeoJSONSource,
   LngLatBounds,
+  type MapLayerMouseEvent,
   Map as MapLibreMap,
   NavigationControl,
   Popup,
   ScaleControl,
-  type ExpressionSpecification,
-  type FilterSpecification,
-  type GeoJSONSource,
-  type MapLayerMouseEvent,
 } from "maplibre-gl";
+import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import type { AllData, CityData, CityLine, CitySummary, Mode, Status } from "../lib/cities";
-import {
-  MODE_META,
-  STATUS_META,
-  lineLengthKm,
-  linesGeoJson,
-  stationsGeoJson,
-} from "../lib/cities";
+import { lineLengthKm, linesGeoJson, MODE_META, STATUS_META, stationsGeoJson } from "../lib/cities";
 import { cityIndex } from "../lib/cityData";
 
 const STYLE_URL = "https://tiles.openfreemap.org/styles/positron";
@@ -93,9 +87,7 @@ export default function CityMap({
     const map = new MapLibreMap({
       container: containerRef.current,
       style: STYLE_URL,
-      ...(view
-        ? { center: [view.lng, view.lat] as [number, number], zoom: view.z }
-        : {}),
+      ...(view ? { center: [view.lng, view.lat] as [number, number], zoom: view.z } : {}),
       minZoom: NATIONAL_MIN_ZOOM,
       maxZoom: 18,
       maxBounds: INDIA_BOUNDS,
@@ -394,24 +386,24 @@ export default function CityMap({
         map.on("click", STATUS_LAYERS[status], (event: MapLayerMouseEvent) => {
           const feature = event.features?.[0];
           if (!feature) return;
-          const props = feature.properties ?? {};
-          const slug = String(props.city ?? "");
+          const props = feature.properties;
+          const slug = String(props?.city ?? "");
           if (slug && slug !== city.slug) {
             navigate(`/city/${slug}`);
             return;
           }
           const geometry = feature.geometry;
-          if (!geometry || geometry.type !== "MultiLineString") return;
+          if (geometry?.type !== "MultiLineString") return;
           const first = geometry.coordinates[0]?.[0];
           if (!first) return;
-          const line = all.lines.find((candidate) => String(candidate.osmId) === String(props.id));
+          const line = all.lines.find((candidate) => String(candidate.osmId) === String(props?.id));
           popup
             .setLngLat([first[0], first[1]])
             .setHTML(
               line
                 ? richLineHtml(line)
-                : `<strong>${escapeHtml(String(props.name))}</strong>` +
-                    `<span class="station-popup__lines">${escapeHtml(String(props.system ?? ""))}</span>`,
+                : `<strong>${escapeHtml(String(props?.name))}</strong>` +
+                    `<span class="station-popup__lines">${escapeHtml(String(props?.system ?? ""))}</span>`,
             )
             .addTo(map);
         });
@@ -421,8 +413,8 @@ export default function CityMap({
         const feature = event.features?.[0];
         if (!feature) return;
         const geometry = feature.geometry;
-        if (!geometry || geometry.type !== "Point") return;
-        const props = feature.properties ?? {};
+        if (geometry?.type !== "Point") return;
+        const props = feature.properties;
         const [lon, lat] = geometry.coordinates as [number, number];
         popup.setLngLat([lon, lat]).setHTML(stationHtml(props)).addTo(map);
       });
@@ -518,12 +510,19 @@ export default function CityMap({
     const modeCondition: ExpressionSpecification | null =
       visibleModes.length === 0
         ? null
-        : (["in", ["get", "mode"], ["literal", visibleModes]] as unknown as ExpressionSpecification);
+        : ([
+            "in",
+            ["get", "mode"],
+            ["literal", visibleModes],
+          ] as unknown as ExpressionSpecification);
 
     const hiddenLineCondition: ExpressionSpecification | null =
       hiddenLines.length === 0
         ? null
-        : (["!", ["in", ["get", "id"], ["literal", hiddenLines]]] as unknown as ExpressionSpecification);
+        : ([
+            "!",
+            ["in", ["get", "id"], ["literal", hiddenLines]],
+          ] as unknown as ExpressionSpecification);
 
     const lineFilter = (status: Status): FilterSpecification | null => {
       if (!visibleStatuses.includes(status) || visibleModes.length === 0) return null;
@@ -545,9 +544,11 @@ export default function CityMap({
     // halo behind.
     const casingParts: ExpressionSpecification[] = [];
     if (visibleStatuses.length > 0) {
-      casingParts.push(
-        ["in", ["get", "status"], ["literal", visibleStatuses]] as ExpressionSpecification,
-      );
+      casingParts.push([
+        "in",
+        ["get", "status"],
+        ["literal", visibleStatuses],
+      ] as ExpressionSpecification);
     }
     if (modeCondition) casingParts.push(modeCondition);
     if (hiddenLineCondition) casingParts.push(hiddenLineCondition);
@@ -584,12 +585,18 @@ export default function CityMap({
     const modeAny: ExpressionSpecification | null =
       visibleModes.length === 0
         ? null
-        : (["any", ...visibleModes.map((m) => ["in", m, ["get", "modes"]])] as unknown as ExpressionSpecification);
+        : ([
+            "any",
+            ...visibleModes.map((m) => ["in", m, ["get", "modes"]]),
+          ] as unknown as ExpressionSpecification);
 
     const statusAny: ExpressionSpecification | null =
       visibleStatuses.length === 0
         ? null
-        : (["any", ...visibleStatuses.map((s) => ["==", ["get", `is-${s}`], true])] as unknown as ExpressionSpecification);
+        : ([
+            "any",
+            ...visibleStatuses.map((s) => ["==", ["get", `is-${s}`], true]),
+          ] as unknown as ExpressionSpecification);
 
     const parts = (
       visibleModes.length === 0 ? [] : [modeAny, statusAny].filter(Boolean)
@@ -599,25 +606,22 @@ export default function CityMap({
       [active ? "==" : "!=", ["get", "city"], city.slug] as ExpressionSpecification;
 
     const stationFilter = (active: boolean): FilterSpecification =>
-      ([
+      [
         "all",
         ["==", ["get", "visible"], true],
         cityCondition(active),
         ...parts,
-      ] as unknown) as FilterSpecification;
+      ] as unknown as FilterSpecification;
 
     map.setFilter(STATIONS, stationFilter(true));
     map.setFilter(LABELS, stationFilter(true));
-    map.setFilter(
-      STATION_DOTS,
-      ([
-        "all",
-        ["==", ["get", "visible"], true],
-        ["==", ["get", "interchange"], true],
-        cityCondition(true),
-        ...parts,
-      ] as unknown) as FilterSpecification,
-    );
+    map.setFilter(STATION_DOTS, [
+      "all",
+      ["==", ["get", "visible"], true],
+      ["==", ["get", "interchange"], true],
+      cityCondition(true),
+      ...parts,
+    ] as unknown as FilterSpecification);
     map.setFilter(STATIONS_OTHER, stationFilter(false));
     map.setFilter(LABELS_OTHER, stationFilter(false));
 
@@ -668,25 +672,24 @@ function boundsForLines(lines: CityLine[]): LngLatBounds | null {
   return any ? bounds : null;
 }
 
-function stationHtml(props: Record<string, unknown>): string {
-  const modes = String(props.modes ?? "")
+function stationHtml(props: Record<string, unknown> | undefined): string {
+  const modes = String(props?.modes ?? "")
     .split("|")
     .filter(Boolean)
     .map((mode) => MODE_META[mode as Mode]?.label ?? mode)
     .join(" · ");
   return (
-    `<strong>${escapeHtml(String(props.name ?? ""))}</strong>` +
+    `<strong>${escapeHtml(String(props?.name ?? ""))}</strong>` +
     `<span class="station-popup__lines">${escapeHtml(modes)}</span>` +
-    `<span class="station-popup__meta">${escapeHtml(String(props.lines ?? ""))}</span>` +
-    (props.interchange ? `<span class="station-popup__badge">Interchange</span>` : "")
+    `<span class="station-popup__meta">${escapeHtml(String(props?.lines ?? ""))}</span>` +
+    (props?.interchange ? `<span class="station-popup__badge">Interchange</span>` : "")
   );
 }
 
 function richLineHtml(line: CityLine): string {
   const status = STATUS_META[line.status]?.label ?? line.status;
   const km = lineLengthKm(line).toFixed(1);
-  const endpoints =
-    line.from && line.to ? `${escapeHtml(line.from)} ↔ ${escapeHtml(line.to)}` : "";
+  const endpoints = line.from && line.to ? `${escapeHtml(line.from)} ↔ ${escapeHtml(line.to)}` : "";
   const opened = line.openingDate ? ` · opened ${line.openingDate.slice(0, 4)}` : "";
   return (
     `<strong>${escapeHtml(line.name)}</strong>` +

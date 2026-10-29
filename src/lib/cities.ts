@@ -1,103 +1,40 @@
 import type { FeatureCollection, MultiLineString, Point } from "geojson";
+import {
+  type AllData,
+  type CityCounts,
+  type CityData,
+  type CityIndex,
+  type CityLine,
+  type CityPreview,
+  type CityStation,
+  type CityStats,
+  type CitySummary,
+  MODE_IDS,
+  MODE_LABELS,
+  MODE_SHORT_LABELS,
+  type Mode,
+  type PreviewPath,
+  REGION_IDS,
+  STATUS_IDS,
+  STATUS_LABELS,
+  type StationRef,
+  type Status,
+} from "../../shared/schema";
 
-export type Mode =
-  | "metro"
-  | "suburban"
-  | "rrts"
-  | "bullet_train"
-  | "monorail"
-  | "light_rail"
-  | "tram"
-  | "funicular"
-  | "water_metro";
-
-export type Status = "operational" | "under-construction" | "planned";
-
-export type StationRef = { name: string; lat: number; lon: number };
-
-export type CityLine = {
-  osmId: number | string;
-  /** Slug of the city this line belongs to (set in the combined dataset). */
-  city?: string;
-  system: string;
-  mode: Mode;
-  name: string;
-  ref: string | null;
-  colour: string;
-  from: string | null;
-  to: string | null;
-  operator: string | null;
-  status: Status;
-  openingDate: string | null;
-  /** One or more polylines; disconnected stretches stay separate. */
-  geometry: [number, number][][];
-  stations: StationRef[];
-};
-
-export type CityStation = StationRef & {
-  city?: string;
-  lines: string[];
-  modes: Mode[];
-};
-
-export type CityCounts = {
-  lines: number;
-  stations: number;
-  km: number;
-  modes: Mode[];
-  systems: number;
-  systemNames: string[];
-};
-
-export type CityStats = {
-  lines: number;
-  stations: number;
-  km: number;
-  opened: string;
-  ridership: string | null;
-};
-
-export type AllData = {
-  generatedAt: string;
-  lines: CityLine[];
-  stations: CityStation[];
-};
-
-export type CityData = {
-  slug: string;
-  city: string;
-  system: string;
-  operator: string;
-  region: string;
-  bounds: [number, number, number, number];
-  minZoom: number;
-  coverage: "full" | "partial" | "none";
-  stats: CityStats;
-  counts: CityCounts;
-  lines: CityLine[];
-  stations: CityStation[];
-};
-
-export type PreviewPath = { colour: string; d: string };
-
-export type CitySummary = {
-  slug: string;
-  city: string;
-  system: string;
-  operator: string;
-  region: string;
-  bounds: [number, number, number, number];
-  minZoom: number;
-  stats: CityStats;
-  coverage: "full" | "partial" | "none";
-  counts: CityCounts;
-  preview: { width: number; height: number; paths: PreviewPath[] } | null;
-};
-
-export type CityIndex = {
-  generatedAt: string;
-  source: string;
-  cities: CitySummary[];
+export type {
+  AllData,
+  CityCounts,
+  CityData,
+  CityIndex,
+  CityLine,
+  CityPreview,
+  CityStation,
+  CityStats,
+  CitySummary,
+  Mode,
+  PreviewPath,
+  StationRef,
+  Status,
 };
 
 /** Mode metadata drives both the legend samples and the map stroke widths. */
@@ -105,40 +42,54 @@ export const MODE_META: Record<
   Mode,
   { label: string; short: string; width: number; overlay?: number[] }
 > = {
-  metro: { label: "Metro", short: "Metro", width: 5 },
+  metro: { label: MODE_LABELS.metro, short: MODE_SHORT_LABELS.metro, width: 5 },
   // Suburban is deliberately one solid stroke in one colour (no overlay, no
   // per-line colour): the whole commuter network reads as a single layer.
-  suburban: { label: "Suburban rail", short: "Suburban", width: 4 },
-  rrts: { label: "Regional rapid rail", short: "RRTS", width: 6.5 },
-  bullet_train: { label: "Bullet train", short: "Bullet", width: 6 },
-  monorail: { label: "Monorail", short: "Monorail", width: 4, overlay: [1.2, 2.2] },
-  light_rail: { label: "Light rail", short: "Light rail", width: 4, overlay: [3, 3] },
-  tram: { label: "Tram", short: "Tram", width: 3.2, overlay: [1.5, 1.5] },
-  funicular: { label: "Funicular", short: "Funicular", width: 2.8, overlay: [0.8, 2.4] },
-  water_metro: { label: "Water metro", short: "Water", width: 3, overlay: [1, 3] },
+  suburban: { label: MODE_LABELS.suburban, short: MODE_SHORT_LABELS.suburban, width: 4 },
+  rrts: { label: MODE_LABELS.rrts, short: MODE_SHORT_LABELS.rrts, width: 6.5 },
+  bullet_train: {
+    label: MODE_LABELS.bullet_train,
+    short: MODE_SHORT_LABELS.bullet_train,
+    width: 6,
+  },
+  monorail: {
+    label: MODE_LABELS.monorail,
+    short: MODE_SHORT_LABELS.monorail,
+    width: 4,
+    overlay: [1.2, 2.2],
+  },
+  light_rail: {
+    label: MODE_LABELS.light_rail,
+    short: MODE_SHORT_LABELS.light_rail,
+    width: 4,
+    overlay: [3, 3],
+  },
+  tram: { label: MODE_LABELS.tram, short: MODE_SHORT_LABELS.tram, width: 3.2, overlay: [1.5, 1.5] },
+  funicular: {
+    label: MODE_LABELS.funicular,
+    short: MODE_SHORT_LABELS.funicular,
+    width: 2.8,
+    overlay: [0.8, 2.4],
+  },
+  water_metro: {
+    label: MODE_LABELS.water_metro,
+    short: MODE_SHORT_LABELS.water_metro,
+    width: 3,
+    overlay: [1, 3],
+  },
 };
 
-export const MODE_ORDER: Mode[] = [
-  "metro",
-  "suburban",
-  "rrts",
-  "bullet_train",
-  "monorail",
-  "light_rail",
-  "tram",
-  "funicular",
-  "water_metro",
-];
+export const MODE_ORDER: Mode[] = [...MODE_IDS];
 
 export const STATUS_META: Record<Status, { label: string; short: string }> = {
-  operational: { label: "Operational", short: "Operational" },
-  "under-construction": { label: "Under construction", short: "Under constr." },
-  planned: { label: "Planned", short: "Planned" },
+  operational: { label: STATUS_LABELS.operational, short: "Operational" },
+  "under-construction": { label: STATUS_LABELS["under-construction"], short: "Under constr." },
+  planned: { label: STATUS_LABELS.planned, short: "Planned" },
 };
 
-export const STATUS_ORDER: Status[] = ["operational", "under-construction", "planned"];
+export const STATUS_ORDER: Status[] = [...STATUS_IDS];
 
-export const REGIONS = ["North", "West", "South", "East"] as const;
+export const REGIONS = REGION_IDS;
 
 /** Modes shown by default: suburban and water metro are too dense for a first look. */
 export const DEFAULT_HIDDEN_MODES: Mode[] = ["suburban", "water_metro"];
@@ -194,9 +145,7 @@ export function linesGeoJson(lines: CityLine[]): FeatureCollection<MultiLineStri
       geometry: {
         type: "MultiLineString",
         // GeoJSON is [lon, lat]; OSM gives [lat, lon].
-        coordinates: line.geometry.map((segment) =>
-          segment.map(([lat, lon]) => [lon, lat]),
-        ),
+        coordinates: line.geometry.map((segment) => segment.map(([lat, lon]) => [lon, lat])),
       },
     })),
   };
@@ -210,15 +159,9 @@ export function stationsGeoJson(
   // Line refs repeat across cities ("Line 1" exists in Delhi, Mumbai, …), so key
   // the lookups by city as well.
   const key = (city: string | undefined, ref: string) => `${city ?? ""}|${ref}`;
-  const statusByLine = new Map(
-    lines.map((l) => [key(l.city, l.ref ?? l.name), l.status]),
-  );
-  const colourByLine = new Map(
-    lines.map((l) => [key(l.city, l.ref ?? l.name), l.colour]),
-  );
-  const idByLine = new Map(
-    lines.map((l) => [key(l.city, l.ref ?? l.name), String(l.osmId)]),
-  );
+  const statusByLine = new Map(lines.map((l) => [key(l.city, l.ref ?? l.name), l.status]));
+  const colourByLine = new Map(lines.map((l) => [key(l.city, l.ref ?? l.name), l.colour]));
+  const idByLine = new Map(lines.map((l) => [key(l.city, l.ref ?? l.name), String(l.osmId)]));
   const hidden = new Set(hiddenLineIds);
 
   return {

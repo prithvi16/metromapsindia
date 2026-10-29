@@ -47,7 +47,7 @@ export default function SiteHeader({ breadcrumbs }: Props) {
                 {breadcrumbs.map((crumb, index) => {
                   const last = index === breadcrumbs.length - 1;
                   return (
-                    <li key={`${crumb.label}-${index}`}>
+                    <li key={crumb.to ?? crumb.label}>
                       {crumb.to && !last ? (
                         <Link to={crumb.to}>{crumb.label}</Link>
                       ) : (

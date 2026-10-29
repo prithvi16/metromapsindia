@@ -1,0 +1,7 @@
+---
+description: MetroMaps India repository rules
+alwaysApply: true
+---
+
+Read and follow `AGENTS.md` at the repository root. It contains the commands,
+invariants, generated-file rules and definition of done for this project.

@@ -1,0 +1,17 @@
+{
+  "checkedAt": "2026-10-29",
+  "notes": "Relation-level fixes moved out of the hard-coded CURATION block in the old build-cities.mjs. Drop entries are duplicate or stationless route masters; the overrides correct the 2/2A split and the construction status of two corridors.",
+  "sources": [
+    "https://www.openstreetmap.org/relation/19233909",
+    "https://www.openstreetmap.org/relation/7898712",
+    "https://www.openstreetmap.org/relation/7898769",
+    "https://en.wikipedia.org/wiki/Mumbai_Metro"
+  ],
+  "dropOsmIds": [19233909, 7898712, 7898769],
+  "refOverrides": { "2": "2A" },
+  "statusOverrides": {
+    "2B": "under-construction",
+    "9": "under-construction"
+  },
+  "lines": []
+}

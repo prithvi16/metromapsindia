@@ -1,13 +1,13 @@
 import { useState } from "react";
 import type { CityLine, Mode, Status } from "../lib/cities";
 import {
+  groupBySystem,
+  lineEndpoints,
+  lineLabel,
   MODE_META,
   MODE_ORDER,
   STATUS_META,
   STATUS_ORDER,
-  groupBySystem,
-  lineEndpoints,
-  lineLabel,
 } from "../lib/cities";
 
 type Props = {
@@ -141,7 +141,15 @@ function ModeSample({ mode }: { mode: Mode }) {
   const strokeWidth = Math.max(1.5, meta.width * 0.55);
   return (
     <svg className="mode-sample" width="24" height="10" viewBox="0 0 24 10" aria-hidden="true">
-      <line x1="1" y1="5" x2="23" y2="5" stroke="#334155" strokeWidth={strokeWidth} strokeLinecap="round" />
+      <line
+        x1="1"
+        y1="5"
+        x2="23"
+        y2="5"
+        stroke="#334155"
+        strokeWidth={strokeWidth}
+        strokeLinecap="round"
+      />
       {meta.overlay && (
         <line
           x1="1"

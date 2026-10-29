@@ -6,15 +6,36 @@ import { countryStats } from "../lib/cityData";
 import { usePageMeta } from "../lib/meta";
 
 const TIMELINE = [
-  { year: "1853", text: "First suburban train runs from Bori Bunder to Thane — Asia’s first commuter railway." },
-  { year: "1873", text: "Horse-drawn trams begin in Kolkata; electric trams follow in Chennai in 1895." },
-  { year: "1984", text: "Kolkata Metro opens between Esplanade and Bhowanipore — India’s first metro." },
-  { year: "1995", text: "Chennai MRTS opens as the country’s first fully elevated suburban corridor." },
-  { year: "2002", text: "Delhi Metro begins service; it is now the largest network in the country." },
+  {
+    year: "1853",
+    text: "First suburban train runs from Bori Bunder to Thane — Asia’s first commuter railway.",
+  },
+  {
+    year: "1873",
+    text: "Horse-drawn trams begin in Kolkata; electric trams follow in Chennai in 1895.",
+  },
+  {
+    year: "1984",
+    text: "Kolkata Metro opens between Esplanade and Bhowanipore — India’s first metro.",
+  },
+  {
+    year: "1995",
+    text: "Chennai MRTS opens as the country’s first fully elevated suburban corridor.",
+  },
+  {
+    year: "2002",
+    text: "Delhi Metro begins service; it is now the largest network in the country.",
+  },
   { year: "2011", text: "Namma Metro opens in Bengaluru." },
   { year: "2014", text: "Mumbai Metro Line 1 and the Mumbai Monorail enter service." },
-  { year: "2023", text: "Navi Mumbai Metro opens; the Delhi–Meerut RRTS priority corridor starts running." },
-  { year: "2026", text: "Meerut Metro opens and the full Delhi–Meerut RRTS corridor is commissioned." },
+  {
+    year: "2023",
+    text: "Navi Mumbai Metro opens; the Delhi–Meerut RRTS priority corridor starts running.",
+  },
+  {
+    year: "2026",
+    text: "Meerut Metro opens and the full Delhi–Meerut RRTS corridor is commissioned.",
+  },
 ];
 
 const MODE_NOTES: Record<string, string> = {
@@ -53,12 +74,11 @@ export default function AboutPage() {
         <section>
           <h2>Why this exists</h2>
           <p>
-            India’s urban rail networks are growing faster than any single map keeps up
-            with. This site pulls metro and light-rail lines from OpenStreetMap and
-            suburban routes from the India Rail Info atlas, draws them on a quiet basemap,
-            and lets you filter by mode and construction status.
-            Everything is generated from a reproducible data pipeline, so when a line opens
-            the map can be refreshed with one command.
+            India’s urban rail networks are growing faster than any single map keeps up with. This
+            site pulls metro and light-rail lines from OpenStreetMap and suburban routes from the
+            India Rail Info atlas, draws them on a quiet basemap, and lets you filter by mode and
+            construction status. Everything is generated from a reproducible data pipeline, so when
+            a line opens the map can be refreshed with one command.
           </p>
         </section>
 
@@ -77,8 +97,8 @@ export default function AboutPage() {
         <section>
           <h2>Modes</h2>
           <p>
-            “Urban rail” covers more than metro. The map distinguishes nine modes, each
-            with its own stroke treatment.
+            “Urban rail” covers more than metro. The map distinguishes nine modes, each with its own
+            stroke treatment.
           </p>
           <dl className="mode-list">
             {MODE_ORDER.map((mode) => (
@@ -93,24 +113,23 @@ export default function AboutPage() {
         <section>
           <h2>How the data is built</h2>
           <p>
-            A Node script queries the Overpass API for every city region, stitches route
-            relations into polylines, clusters stop positions into stations, and applies a
-            small curation table for known OpenStreetMap tagging gaps. The result is one
-            GeoJSON-style dataset per city, plus a generated SVG sketch for the home page.
+            A TypeScript pipeline queries the Overpass API for every city region, stitches route
+            relations into polylines, clusters stop positions into stations, and applies sourced
+            curation patches for known OpenStreetMap tagging gaps. The result is one GeoJSON-style
+            dataset per city, plus a generated SVG sketch for the home page.
           </p>
           <p>
-            Coverage is uneven. Some cities are complete; others are missing stations or
-            whole lines. Cards and city pages say so rather than filling the gaps with
-            guesses.
+            Coverage is uneven. Some cities are complete; others are missing stations or whole
+            lines. Cards and city pages say so rather than filling the gaps with guesses.
           </p>
           <p>
             Suburban rail is imported separately from the{" "}
             <a href="https://indiarailinfo.com/atlas" target="_blank" rel="noreferrer">
               India Rail Info atlas
             </a>
-            : its vector tiles carry every track and station, and a per-city manifest
-            groups them into named corridors. Suburban lines are rendered as one solid
-            teal stroke so the commuter network reads as a single layer beneath the metro.
+            : its vector tiles carry every track and station, and a per-city manifest groups them
+            into named corridors. Suburban lines are rendered as one solid teal stroke so the
+            commuter network reads as a single layer beneath the metro.
           </p>
         </section>
 
@@ -119,19 +138,17 @@ export default function AboutPage() {
           <ul className="sources">
             <li>
               Map data:{" "}
-              <a href="https://www.openstreetmap.org/copyright">
-                OpenStreetMap contributors
-              </a>{" "}
-              under the ODbL, fetched via the Overpass API.
+              <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a> under
+              the ODbL, fetched via the Overpass API.
             </li>
             <li>
               Suburban linework and station coordinates:{" "}
-              <a href="https://indiarailinfo.com/atlas">India Rail Info atlas</a>, ©
-              India Rail Info; used here with attribution.
+              <a href="https://indiarailinfo.com/atlas">India Rail Info atlas</a>, © India Rail
+              Info; used here with attribution.
             </li>
             <li>
-              Basemap: <a href="https://openfreemap.org">OpenFreeMap</a> Positron, built
-              from OpenMapTiles.
+              Basemap: <a href="https://openfreemap.org">OpenFreeMap</a> Positron, built from
+              OpenMapTiles.
             </li>
             <li>
               Network figures and history:{" "}

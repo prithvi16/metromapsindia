@@ -75,9 +75,9 @@ export default function CityPage() {
         const requestedStatuses =
           rawStatuses == null
             ? null
-            : rawStatuses.split(",").filter((status): status is Status =>
-                STATUS_ORDER.includes(status as Status),
-              );
+            : rawStatuses
+                .split(",")
+                .filter((status): status is Status => STATUS_ORDER.includes(status as Status));
 
         let nextModes =
           requestedModes ??
@@ -148,10 +148,7 @@ export default function CityPage() {
     );
   }
 
-  const breadcrumbs = [
-    { label: "Home", to: "/" },
-    { label: summary.city },
-  ];
+  const breadcrumbs = [{ label: "Home", to: "/" }, { label: summary.city }];
 
   if (summary.coverage === "none") {
     return (
@@ -160,9 +157,9 @@ export default function CityPage() {
         <main className="page">
           <h1>{summary.city}</h1>
           <p className="page__lede">
-            {summary.system} is on the list, but its network is not mapped yet. Planned
-            opening: {summary.stats.opened.slice(0, 4)}. This page will appear once the
-            lines and stations are traced.
+            {summary.system} is on the list, but its network is not mapped yet. Planned opening:{" "}
+            {summary.stats.opened.slice(0, 4)}. This page will appear once the lines and stations
+            are traced.
           </p>
           <p>
             <Link to="/">Browse the cities that are ready</Link>
@@ -238,9 +235,7 @@ export default function CityPage() {
               <dd>{summary.counts.km.toFixed(1)} km</dd>
             </div>
             <div>
-              <dt>
-                {new Date(summary.stats.opened).getTime() > Date.now() ? "Opening" : "Since"}
-              </dt>
+              <dt>{new Date(summary.stats.opened).getTime() > Date.now() ? "Opening" : "Since"}</dt>
               <dd>{summary.stats.opened.slice(0, 4)}</dd>
             </div>
             {summary.stats.ridership && (
@@ -327,32 +322,32 @@ export default function CityPage() {
               {city?.lines.length ?? summary.counts.lines} mapped{" "}
               {(city?.lines.length ?? summary.counts.lines) === 1 ? "line" : "lines"} serving{" "}
               {city?.stations.length ?? summary.counts.stations} stations across{" "}
-              {summary.counts.modes.map((mode) => MODE_META[mode].label).join(", ") || "—"}.
-              Zoom out to see neighbouring networks, or click another city's line to open
-              it. The layer panel switches modes and statuses on and off.
+              {summary.counts.modes.map((mode) => MODE_META[mode].label).join(", ") || "—"}. Zoom
+              out to see neighbouring networks, or click another city's line to open it. The layer
+              panel switches modes and statuses on and off.
             </p>
             <p className="city-page__official">
               Official {summary.system} figures: {summary.stats.lines}{" "}
-              {summary.stats.lines === 1 ? "line" : "lines"}, {summary.stats.stations}{" "}
-              stations and {summary.stats.km.toFixed(1)} km (Wikipedia, October 2026).
+              {summary.stats.lines === 1 ? "line" : "lines"}, {summary.stats.stations} stations and{" "}
+              {summary.stats.km.toFixed(1)} km (Wikipedia, October 2026).
             </p>
             {summary.coverage === "partial" && (
               <p className="notice">
-                Coverage here is partial — {summary.counts.stations} of{" "}
-                {summary.stats.stations} stations are mapped so far.
+                Coverage here is partial — {summary.counts.stations} of {summary.stats.stations}{" "}
+                stations are mapped so far.
               </p>
             )}
           </div>
           <div>
             <h2>Data</h2>
             <p>
-              Metro, monorail and light-rail lines from OpenStreetMap contributors
-              (ODbL). Suburban linework and station coordinates from the{" "}
+              Metro, monorail and light-rail lines from OpenStreetMap contributors (ODbL). Suburban
+              linework and station coordinates from the{" "}
               <a href="https://indiarailinfo.com/atlas" target="_blank" rel="noreferrer">
                 India Rail Info atlas
               </a>
-              , drawn as a single teal line. Network figures from Wikipedia’s “Urban
-              rail transit in India”, as of October 2026.
+              , drawn as a single teal line. Network figures from Wikipedia’s “Urban rail transit in
+              India”, as of October 2026.
             </p>
           </div>
         </section>

@@ -22,12 +22,7 @@
       "from": "Chennai Fort",
       "to": "Chengalpattu",
       "status": "operational",
-      "tracks": [
-        "1962.1",
-        "1962.101",
-        "1956.1",
-        "1956.248"
-      ]
+      "tracks": ["1962.1", "1962.101", "1956.1", "1956.248"]
     },
     {
       "id": "north",
@@ -35,12 +30,7 @@
       "from": "MGR Central",
       "to": "Gummidipoondi",
       "status": "operational",
-      "tracks": [
-        "1959.1",
-        "1124.47",
-        "1435.233",
-        "1435.184"
-      ]
+      "tracks": ["1959.1", "1124.47", "1435.233", "1435.184"]
     },
     {
       "id": "west",
@@ -48,10 +38,7 @@
       "from": "MGR Central",
       "to": "Arakkonam",
       "status": "operational",
-      "tracks": [
-        "1959.1",
-        "11.1"
-      ]
+      "tracks": ["1959.1", "11.1"]
     },
     {
       "id": "mrts",
@@ -59,11 +46,7 @@
       "from": "Chennai Fort",
       "to": "St Thomas Mount",
       "status": "operational",
-      "tracks": [
-        "395.1",
-        "395.192",
-        "395.410"
-      ]
+      "tracks": ["395.1", "395.192", "395.410"]
     }
   ]
 }

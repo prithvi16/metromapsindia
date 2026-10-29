@@ -1,44 +1,43 @@
 ---
+
 description: Imports suburban rail corridors from the India Rail Info atlas and writes per-city manifests
 mode: subagent
 steps: 70
 color: "#0f766e"
 permissions:
-  - action: edit
-    resource: "*"
-    effect: deny
-  - action: edit
-    resource: "scripts/suburban/**"
-    effect: allow
-  - action: edit
-    resource: "scripts/out/**"
-    effect: allow
-  - action: shell
-    resource: "node scripts/fetch-iri.mjs*"
-    effect: allow
-  - action: shell
-    resource: "node scripts/build-suburban.mjs*"
-    effect: allow
-  - action: shell
-    resource: "node scripts/build-cities.mjs*"
-    effect: allow
-  - action: shell
-    resource: "node scripts/iri-save-detail.mjs*"
-    effect: allow
-  - action: shell
-    resource: "node scripts/report-gaps.mjs*"
-    effect: allow
-  - action: shell
-    resource: "npm run data:build*"
-    effect: allow
-  - action: shell
-    resource: "node --check scripts/*"
-    effect: allow
+- action: edit
+  resource: "*"
+  effect: deny
+- action: edit
+  resource: "scripts/suburban/**"
+  effect: allow
+- action: edit
+  resource: "scripts/out/**"
+  effect: allow
+- action: shell
+  resource: "npm run data:iri*"
+  effect: allow
+- action: shell
+  resource: "npm run data:suburban*"
+  effect: allow
+- action: shell
+  resource: "npm run data:build*"
+  effect: allow
+- action: shell
+  resource: "npm run data:iri-detail*"
+  effect: allow
+- action: shell
+  resource: "npm run data:gaps*"
+  effect: allow
+- action: shell
+  resource: "npm run validate:data*"
+  effect: allow
+
 ---
 
 You import suburban railway corridors into MetroMaps India from the India Rail
 Info (IRI) atlas. Work one city per run; the parent gives you a city slug from
-`scripts/cities.mjs`.
+`scripts/cities.ts`.
 
 The IRI atlas has **no suburban flag**. It is one national vector-tile layer of
 railway tracks and stations. Your job is to decide which of its tracks make up
@@ -47,13 +46,13 @@ result assembles into clean lines.
 
 ## Inputs already on disk
 
-- `scripts/fetch-iri.mjs` — downloads the atlas tiles for the city's
+- `scripts/fetch-iri.ts` — downloads the atlas tiles for the city's
   `suburbanBounds` and writes `scripts/out/iri/<slug>/stations.geojson`,
   `tracks.geojson`, `tracks.json`.
-- `scripts/lib/suburban.mjs` — assembler; reads the manifest + extract and emits
+- `scripts/lib/suburban.ts` — assembler; reads the manifest + extract and emits
   CityLine records.
-- `scripts/build-suburban.mjs` — CLI preview of the assembled lines.
-- `scripts/iri-save-detail.mjs` — stores a browser-downloaded track JSON.
+- `scripts/build-suburban.ts` — CLI preview of the assembled lines.
+- `scripts/iri-save-detail.ts` — stores a browser-downloaded track JSON.
 
 ## Atlas facts
 
@@ -76,7 +75,7 @@ result assembles into clean lines.
 1. **Extract tiles**
 
    ```bash
-   node scripts/fetch-iri.mjs --city=<slug>
+   npm run data:iri -- --city=<slug>
    ```
 
    If the TileJSON preflight fails, the build id changed: open the atlas in a
@@ -95,32 +94,32 @@ result assembles into clean lines.
 
    a. `browser.tabs.open("https://indiarailinfo.com/atlas")`.
    b. Read the version:
-      `browser.evaluate({ tabID, script: "document.querySelector('#atl_version').value" })`.
+   `browser.evaluate({ tabID, script: "document.querySelector('#atl_version').value" })`.
    c. For the chosen trackids (plus any you are unsure about), run one evaluate
-      that fetches them same-origin, then triggers a download:
+   that fetches them same-origin, then triggers a download:
 
-      ```js
-      (async () => {
-        const ids = ["955.1", "947.1"];
-        const out = {};
-        for (const id of ids) {
-          const r = await fetch("/atlas/track/" + encodeURIComponent(id) + "?i=1");
-          if (!r.ok) { out[id] = { error: r.status }; continue; }
-          out[id] = await r.json();
-        }
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(new Blob([JSON.stringify(out)], { type: "application/json" }));
-        a.download = "iri-tracks-detail.json";
-        a.click();
-      })()
-      ```
+   ```js
+   (async () => {
+     const ids = ["955.1", "947.1"];
+     const out = {};
+     for (const id of ids) {
+       const r = await fetch("/atlas/track/" + encodeURIComponent(id) + "?i=1");
+       if (!r.ok) { out[id] = { error: r.status }; continue; }
+       out[id] = await r.json();
+     }
+     const a = document.createElement("a");
+     a.href = URL.createObjectURL(new Blob([JSON.stringify(out)], { type: "application/json" }));
+     a.download = "iri-tracks-detail.json";
+     a.click();
+   })()
+   ```
 
    d. `browser.files.list({ tabID })`, then `browser.files.get({ tabID, fileID })`.
    e. Save it:
 
-      ```bash
-      node scripts/iri-save-detail.mjs <slug> <downloaded-path>
-      ```
+   ```bash
+   npm run data:iri-detail -- <slug> <downloaded-path>
+   ```
 
    If the browser is unavailable, continue with the z12 tile geometry: the
    assembler falls back to `tracks.geojson` and reports the gap in its warnings.
@@ -133,7 +132,7 @@ result assembles into clean lines.
 6. **Preview the assembly**
 
    ```bash
-   node scripts/build-suburban.mjs --city=<slug>
+   npm run data:suburban -- --city=<slug>
    ```
 
    Check per line: track count used, station count, km. Investigate warnings:
@@ -142,8 +141,9 @@ result assembles into clean lines.
 7. **Build and verify**
 
    ```bash
-   npm run data:build
-   node scripts/report-gaps.mjs --city=<slug>
+   npm run data:build -- --city=<slug>
+   npm run data:gaps -- --city=<slug>
+   npm run validate:data
    ```
 
    Suburban lines should replace OSM's route=train lines for this city; the

@@ -1,8 +1,8 @@
 import { Link, useSearchParams } from "react-router-dom";
 import SiteFooter from "../components/SiteFooter";
 import SiteHeader from "../components/SiteHeader";
-import { MODE_META } from "../lib/cities";
 import type { CitySummary } from "../lib/cities";
+import { MODE_META } from "../lib/cities";
 import { cityIndex, countryStats } from "../lib/cityData";
 import { usePageMeta } from "../lib/meta";
 
@@ -40,10 +40,9 @@ export default function HomePage() {
             {countryStats.systems} systems across {countryStats.cities} mapped cities —{" "}
             {countryStats.lines} lines, {countryStats.stations.toLocaleString("en-IN")} mapped
             stations and {countryStats.km.toLocaleString("en-IN")} line-km — with{" "}
-            {countryStats.listed - countryStats.cities} more planned systems on the way.
-            Metro and bullet train from OpenStreetMap, suburban from the India Rail Info
-            atlas. Filter by mode, jump between cities, and see what is running, building
-            and planned.
+            {countryStats.listed - countryStats.cities} more planned systems on the way. Metro and
+            bullet train from OpenStreetMap, suburban from the India Rail Info atlas. Filter by
+            mode, jump between cities, and see what is running, building and planned.
           </p>
 
           <dl className="hero__stats">
@@ -113,9 +112,9 @@ function CityCard({ city }: { city: CitySummary }) {
             role="img"
             aria-label={`${city.city} network sketch`}
           >
-            {city.preview.paths.map((path, index) => (
+            {city.preview.paths.map((path) => (
               <path
-                key={index}
+                key={path.d}
                 d={path.d}
                 fill="none"
                 stroke={path.colour}
@@ -138,9 +137,7 @@ function CityCard({ city }: { city: CitySummary }) {
           </span>
         </div>
         <p className="city-card__system">
-          {city.counts.systemNames.length > 0
-            ? city.counts.systemNames.join(" · ")
-            : city.system}
+          {city.counts.systemNames.length > 0 ? city.counts.systemNames.join(" · ") : city.system}
           {city.operator ? ` · ${city.operator}` : ""}
         </p>
 

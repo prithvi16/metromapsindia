@@ -1,6 +1,7 @@
 {
-  "generatedAt": "2026-10-29T16:51:28.265Z",
-  "source": "OpenStreetMap contributors, ODbL 1.0 (via Overpass API)",
+  "generatedBy": "scripts/build-cities.ts",
+  "generatedAt": "2026-10-29T17:08:15.110Z",
+  "source": "OpenStreetMap contributors, ODbL 1.0 (via Overpass API); suburban linework from India Rail Info",
   "cities": [
     {
       "slug": "delhi",
@@ -15,6 +16,7 @@
         28.7729
       ],
       "minZoom": 10,
+      "coverage": "full",
       "stats": {
         "lines": 10,
         "stations": 271,
@@ -22,7 +24,6 @@
         "opened": "2002-12-24",
         "ridership": "2,032.3M (2024)"
       },
-      "coverage": "full",
       "counts": {
         "lines": 17,
         "stations": 302,
@@ -39,6 +40,11 @@
           "RapidX"
         ]
       },
+      "neighbours": [
+        "gurugram",
+        "noida",
+        "meerut"
+      ],
       "preview": {
         "width": 132,
         "height": 84,
@@ -107,6 +113,7 @@
         28.5134
       ],
       "minZoom": 12.5,
+      "coverage": "full",
       "stats": {
         "lines": 1,
         "stations": 11,
@@ -114,7 +121,6 @@
         "opened": "2013-11-14",
         "ridership": "14.6M (2024)"
       },
-      "coverage": "full",
       "counts": {
         "lines": 1,
         "stations": 11,
@@ -127,6 +133,10 @@
           "Rapid Metro Gurgaon"
         ]
       },
+      "neighbours": [
+        "delhi",
+        "noida"
+      ],
       "preview": {
         "width": 132,
         "height": 84,
@@ -155,6 +165,7 @@
         28.5977
       ],
       "minZoom": 11.5,
+      "coverage": "full",
       "stats": {
         "lines": 1,
         "stations": 21,
@@ -162,7 +173,6 @@
         "opened": "2019-01-25",
         "ridership": "22.0M (2024)"
       },
-      "coverage": "full",
       "counts": {
         "lines": 1,
         "stations": 18,
@@ -175,6 +185,11 @@
           "Noida Metro"
         ]
       },
+      "neighbours": [
+        "delhi",
+        "gurugram",
+        "meerut"
+      ],
       "preview": {
         "width": 132,
         "height": 84,
@@ -199,6 +214,7 @@
         29.0843
       ],
       "minZoom": 11.5,
+      "coverage": "full",
       "stats": {
         "lines": 1,
         "stations": 13,
@@ -206,7 +222,6 @@
         "opened": "2026-02-22",
         "ridership": null
       },
-      "coverage": "full",
       "counts": {
         "lines": 1,
         "stations": 12,
@@ -219,6 +234,10 @@
           "Meerut Metro"
         ]
       },
+      "neighbours": [
+        "delhi",
+        "noida"
+      ],
       "preview": {
         "width": 132,
         "height": 84,
@@ -243,6 +262,7 @@
         26.8999
       ],
       "minZoom": 12,
+      "coverage": "full",
       "stats": {
         "lines": 1,
         "stations": 21,
@@ -250,7 +270,6 @@
         "opened": "2017-09-05",
         "ridership": "31.2M (2024)"
       },
-      "coverage": "full",
       "counts": {
         "lines": 1,
         "stations": 22,
@@ -263,6 +282,9 @@
           "Lucknow Metro"
         ]
       },
+      "neighbours": [
+        "kanpur"
+      ],
       "preview": {
         "width": 132,
         "height": 84,
@@ -287,6 +309,7 @@
         26.5218
       ],
       "minZoom": 12,
+      "coverage": "full",
       "stats": {
         "lines": 1,
         "stations": 14,
@@ -294,7 +317,6 @@
         "opened": "2021-12-28",
         "ridership": "11.1M (2024)"
       },
-      "coverage": "full",
       "counts": {
         "lines": 1,
         "stations": 14,
@@ -307,6 +329,9 @@
           "Kanpur Metro"
         ]
       },
+      "neighbours": [
+        "lucknow"
+      ],
       "preview": {
         "width": 132,
         "height": 84,
@@ -331,6 +356,7 @@
         27.1902
       ],
       "minZoom": 13,
+      "coverage": "full",
       "stats": {
         "lines": 1,
         "stations": 6,
@@ -338,7 +364,6 @@
         "opened": "2024-03-06",
         "ridership": null
       },
-      "coverage": "full",
       "counts": {
         "lines": 1,
         "stations": 6,
@@ -351,6 +376,7 @@
           "Agra Metro"
         ]
       },
+      "neighbours": [],
       "preview": {
         "width": 132,
         "height": 84,
@@ -375,6 +401,7 @@
         26.9387
       ],
       "minZoom": 12.5,
+      "coverage": "full",
       "stats": {
         "lines": 1,
         "stations": 11,
@@ -382,7 +409,6 @@
         "opened": "2015-06-03",
         "ridership": "20.1M (2024)"
       },
-      "coverage": "full",
       "counts": {
         "lines": 1,
         "stations": 11,
@@ -395,6 +421,7 @@
           "Jaipur Metro"
         ]
       },
+      "neighbours": [],
       "preview": {
         "width": 132,
         "height": 84,
@@ -427,6 +454,7 @@
         19.3219
       ],
       "minZoom": 10.5,
+      "coverage": "full",
       "stats": {
         "lines": 4,
         "stations": 77,
@@ -434,7 +462,6 @@
         "opened": "2014-06-08",
         "ridership": "273.8M (2024)"
       },
-      "coverage": "full",
       "counts": {
         "lines": 17,
         "stations": 216,
@@ -449,6 +476,10 @@
           "Mumbai Suburban Railway"
         ]
       },
+      "neighbours": [
+        "mumbai-ahmedabad",
+        "navi-mumbai"
+      ],
       "preview": {
         "width": 132,
         "height": 84,
@@ -497,6 +528,7 @@
         19.0882
       ],
       "minZoom": 13,
+      "coverage": "partial",
       "stats": {
         "lines": 1,
         "stations": 11,
@@ -504,7 +536,6 @@
         "opened": "2023-11-17",
         "ridership": "5.8M (2026)"
       },
-      "coverage": "partial",
       "counts": {
         "lines": 1,
         "stations": 3,
@@ -517,6 +548,10 @@
           "Navi Mumbai Metro"
         ]
       },
+      "neighbours": [
+        "mumbai",
+        "mumbai-ahmedabad"
+      ],
       "preview": {
         "width": 132,
         "height": 84,
@@ -541,6 +576,7 @@
         18.6418
       ],
       "minZoom": 12,
+      "coverage": "full",
       "stats": {
         "lines": 2,
         "stations": 28,
@@ -548,7 +584,6 @@
         "opened": "2022-03-06",
         "ridership": "67.1M (2025)"
       },
-      "coverage": "full",
       "counts": {
         "lines": 3,
         "stations": 38,
@@ -563,6 +598,9 @@
           "Pune Suburban Railway"
         ]
       },
+      "neighbours": [
+        "mumbai-ahmedabad"
+      ],
       "preview": {
         "width": 132,
         "height": 84,
@@ -651,6 +689,7 @@
         21.1978
       ],
       "minZoom": 12,
+      "coverage": "full",
       "stats": {
         "lines": 2,
         "stations": 37,
@@ -658,7 +697,6 @@
         "opened": "2019-03-08",
         "ridership": "33.9M (2024)"
       },
-      "coverage": "full",
       "counts": {
         "lines": 2,
         "stations": 36,
@@ -671,6 +709,7 @@
           "Nagpur Metro"
         ]
       },
+      "neighbours": [],
       "preview": {
         "width": 132,
         "height": 84,
@@ -703,6 +742,7 @@
         23.257
       ],
       "minZoom": 11,
+      "coverage": "partial",
       "stats": {
         "lines": 4,
         "stations": 54,
@@ -710,7 +750,6 @@
         "opened": "2019-03-04",
         "ridership": "51.0M (2025)"
       },
-      "coverage": "partial",
       "counts": {
         "lines": 4,
         "stations": 32,
@@ -723,6 +762,9 @@
           "Ahmedabad Metro"
         ]
       },
+      "neighbours": [
+        "mumbai-ahmedabad"
+      ],
       "preview": {
         "width": 132,
         "height": 84,
@@ -759,6 +801,7 @@
         22.8019
       ],
       "minZoom": 12,
+      "coverage": "partial",
       "stats": {
         "lines": 1,
         "stations": 16,
@@ -766,7 +809,6 @@
         "opened": "2025-05-31",
         "ridership": null
       },
-      "coverage": "partial",
       "counts": {
         "lines": 1,
         "stations": 8,
@@ -779,6 +821,7 @@
           "Indore Metro"
         ]
       },
+      "neighbours": [],
       "preview": {
         "width": 132,
         "height": 84,
@@ -851,6 +894,7 @@
         23.2598
       ],
       "minZoom": 13,
+      "coverage": "full",
       "stats": {
         "lines": 1,
         "stations": 8,
@@ -858,7 +902,6 @@
         "opened": "2025-12-21",
         "ridership": null
       },
-      "coverage": "full",
       "counts": {
         "lines": 1,
         "stations": 8,
@@ -871,6 +914,7 @@
           "Bhoj Metro"
         ]
       },
+      "neighbours": [],
       "preview": {
         "width": 132,
         "height": 84,
@@ -895,6 +939,7 @@
         13.075
       ],
       "minZoom": 11,
+      "coverage": "full",
       "stats": {
         "lines": 3,
         "stations": 85,
@@ -902,7 +947,6 @@
         "opened": "2011-10-20",
         "ridership": "278.5M (2024)"
       },
-      "coverage": "full",
       "counts": {
         "lines": 8,
         "stations": 136,
@@ -917,6 +961,7 @@
           "Namma Metro"
         ]
       },
+      "neighbours": [],
       "preview": {
         "width": 132,
         "height": 84,
@@ -965,6 +1010,7 @@
         13.2098
       ],
       "minZoom": 10.5,
+      "coverage": "full",
       "stats": {
         "lines": 3,
         "stations": 52,
@@ -972,7 +1018,6 @@
         "opened": "2015-06-29",
         "ridership": "111.9M (2025)"
       },
-      "coverage": "full",
       "counts": {
         "lines": 10,
         "stations": 147,
@@ -987,6 +1032,7 @@
           "Chennai Suburban Railway"
         ]
       },
+      "neighbours": [],
       "preview": {
         "width": 132,
         "height": 84,
@@ -1031,6 +1077,7 @@
         17.5114
       ],
       "minZoom": 11.5,
+      "coverage": "full",
       "stats": {
         "lines": 3,
         "stations": 59,
@@ -1038,7 +1085,6 @@
         "opened": "2017-11-29",
         "ridership": "178.0M (2024)"
       },
-      "coverage": "full",
       "counts": {
         "lines": 10,
         "stations": 107,
@@ -1053,6 +1099,7 @@
           "Hyderabad Metro"
         ]
       },
+      "neighbours": [],
       "preview": {
         "width": 132,
         "height": 84,
@@ -1085,6 +1132,7 @@
         10.1231
       ],
       "minZoom": 11.5,
+      "coverage": "full",
       "stats": {
         "lines": 1,
         "stations": 25,
@@ -1092,7 +1140,6 @@
         "opened": "2017-06-17",
         "ridership": "36.5M (2025)"
       },
-      "coverage": "full",
       "counts": {
         "lines": 1,
         "stations": 25,
@@ -1105,6 +1152,7 @@
           "Kochi Metro"
         ]
       },
+      "neighbours": [],
       "preview": {
         "width": 132,
         "height": 84,
@@ -1129,6 +1177,7 @@
         22.669
       ],
       "minZoom": 11,
+      "coverage": "full",
       "stats": {
         "lines": 5,
         "stations": 58,
@@ -1136,7 +1185,6 @@
         "opened": "1984-10-24",
         "ridership": "225.5M (2025)"
       },
-      "coverage": "full",
       "counts": {
         "lines": 20,
         "stations": 238,
@@ -1153,6 +1201,7 @@
           "WBTC"
         ]
       },
+      "neighbours": [],
       "preview": {
         "width": 132,
         "height": 84,
@@ -1233,6 +1282,7 @@
         25.6062
       ],
       "minZoom": 13.5,
+      "coverage": "full",
       "stats": {
         "lines": 1,
         "stations": 4,
@@ -1240,7 +1290,6 @@
         "opened": "2025-10-06",
         "ridership": null
       },
-      "coverage": "full",
       "counts": {
         "lines": 1,
         "stations": 5,
@@ -1253,6 +1302,7 @@
           "Patna Metro"
         ]
       },
+      "neighbours": [],
       "preview": {
         "width": 132,
         "height": 84,
@@ -1297,6 +1347,7 @@
         21.35
       ],
       "minZoom": 10.5,
+      "coverage": "none",
       "stats": {
         "lines": 2,
         "stations": 38,
@@ -1304,7 +1355,6 @@
         "opened": "2027-12",
         "ridership": null
       },
-      "coverage": "none",
       "counts": {
         "lines": 0,
         "stations": 0,
@@ -1313,6 +1363,7 @@
         "systems": 0,
         "systemNames": []
       },
+      "neighbours": [],
       "preview": null
     },
     {
@@ -1328,6 +1379,7 @@
         20.4
       ],
       "minZoom": 11,
+      "coverage": "none",
       "stats": {
         "lines": 1,
         "stations": 20,
@@ -1335,7 +1387,6 @@
         "opened": "2028",
         "ridership": null
       },
-      "coverage": "none",
       "counts": {
         "lines": 0,
         "stations": 0,
@@ -1344,6 +1395,7 @@
         "systems": 0,
         "systemNames": []
       },
+      "neighbours": [],
       "preview": null
     },
     {
@@ -1359,6 +1411,7 @@
         17.9
       ],
       "minZoom": 10.5,
+      "coverage": "none",
       "stats": {
         "lines": 4,
         "stations": 54,
@@ -1366,7 +1419,6 @@
         "opened": "2029",
         "ridership": null
       },
-      "coverage": "none",
       "counts": {
         "lines": 0,
         "stations": 0,
@@ -1375,6 +1427,7 @@
         "systems": 0,
         "systemNames": []
       },
+      "neighbours": [],
       "preview": null
     },
     {
@@ -1390,6 +1443,7 @@
         11.15
       ],
       "minZoom": 11,
+      "coverage": "none",
       "stats": {
         "lines": 2,
         "stations": 40,
@@ -1397,7 +1451,6 @@
         "opened": "TBD",
         "ridership": null
       },
-      "coverage": "none",
       "counts": {
         "lines": 0,
         "stations": 0,
@@ -1406,6 +1459,7 @@
         "systems": 0,
         "systemNames": []
       },
+      "neighbours": [],
       "preview": null
     },
     {
@@ -1421,6 +1475,7 @@
         23.3815
       ],
       "minZoom": 7.5,
+      "coverage": "full",
       "stats": {
         "lines": 1,
         "stations": 12,
@@ -1428,7 +1483,6 @@
         "opened": "2029",
         "ridership": null
       },
-      "coverage": "full",
       "counts": {
         "lines": 1,
         "stations": 12,
@@ -1441,6 +1495,12 @@
           "Mumbai–Ahmedabad High Speed Rail"
         ]
       },
+      "neighbours": [
+        "ahmedabad",
+        "mumbai",
+        "navi-mumbai",
+        "pune"
+      ],
       "preview": {
         "width": 132,
         "height": 84,
