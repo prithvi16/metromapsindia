@@ -41,12 +41,22 @@ export default function CityPage() {
   };
 
   usePageMeta(
-    summary ? `${summary.city} — MetroMaps India` : "MetroMaps India",
+    summary ? `${summary.city} — MetroMaps India` : "City not found — MetroMaps India",
     summary
       ? summary.coverage === "none"
         ? `${summary.city}: ${summary.system}, planned opening ${summary.stats.opened.slice(0, 4)}.`
         : `${summary.city}: ${summary.counts.lines} mapped lines and ${summary.counts.stations} stations across ${summary.counts.km.toFixed(0)} line-km of metro, suburban and light rail.`
-      : "An atlas of urban rail in India.",
+      : "No city matches this address. Browse every mapped urban rail network in India.",
+    {
+      path: slug ? `/city/${slug}` : "/",
+      noindex: !summary,
+      breadcrumbs: summary
+        ? [
+            { name: "Home", path: "/" },
+            { name: summary.city, path: `/city/${summary.slug}` },
+          ]
+        : undefined,
+    },
   );
 
   useEffect(() => {

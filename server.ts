@@ -22,6 +22,22 @@ app.use(
   }),
 );
 
+// Serve the crawler-facing shells generated after the Vite build. Missing
+// routes fall through to the SPA shell and the client-side 404 page.
+app.get("/about", (_req, res, next) => {
+  res.sendFile(path.join(distDir, "about.html"), (error) => {
+    if (error) next();
+  });
+});
+
+app.get("/city/:slug", (req, res, next) => {
+  const slug = req.params.slug;
+  if (!/^[a-z0-9-]+$/.test(slug)) return next();
+  res.sendFile(path.join(distDir, "city", `${slug}.html`), (error) => {
+    if (error) next();
+  });
+});
+
 // Single-page app fallback: any non-asset route serves index.html.
 app.use((req, res, next) => {
   if (req.method !== "GET") return next();

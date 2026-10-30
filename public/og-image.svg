@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630" role="img" aria-labelledby="title">
+  <title id="title">MetroMaps India — India's urban rail atlas</title>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0b1322"/>
+      <stop offset=".55" stop-color="#0f172a"/>
+      <stop offset="1" stop-color="#171128"/>
+    </linearGradient>
+    <linearGradient id="mark" x1="72" y1="64" x2="156" y2="148" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#fb7185"/>
+      <stop offset=".48" stop-color="#e11d48"/>
+      <stop offset="1" stop-color="#881337"/>
+    </linearGradient>
+    <linearGradient id="route" x1="72" y1="270" x2="620" y2="270" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#fb7185"/>
+      <stop offset="1" stop-color="#fecdd3"/>
+    </linearGradient>
+    <radialGradient id="glow" cx=".5" cy=".5" r=".5">
+      <stop stop-color="#e11d48" stop-opacity=".35"/>
+      <stop offset="1" stop-color="#e11d48" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="#ffffff" stroke-opacity=".035" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect width="1200" height="630" fill="url(#grid)"/>
+  <circle cx="1040" cy="70" r="320" fill="url(#glow)"/>
+
+  <rect x="72" y="64" width="84" height="84" rx="20" fill="url(#mark)"/>
+  <rect x="73" y="65" width="82" height="82" rx="19" fill="none" stroke="#ffffff" stroke-opacity=".18" stroke-width="2"/>
+  <path d="M89 126V102L105 85L115 99L125 85L141 102V126" fill="none" stroke="#ffffff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="115" cy="99" r="6" fill="#ffffff"/>
+  <circle cx="115" cy="99" r="2.3" fill="#be123c"/>
+
+  <text x="184" y="108" font-family="Georgia, 'Times New Roman', serif" font-size="36" fill="#ffffff" letter-spacing="-.6">MetroMaps <tspan font-style="italic" fill="#fb7185">India</tspan></text>
+  <text x="186" y="136" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11" font-weight="700" fill="#94a3b8" letter-spacing="4.2">URBAN RAIL, MAPPED</text>
+
+  <text x="72" y="274" font-family="Georgia, 'Times New Roman', serif" font-size="68" fill="#ffffff" letter-spacing="-1.6">India’s urban rail,</text>
+  <text x="72" y="346" font-family="Georgia, 'Times New Roman', serif" font-size="68" fill="#ffffff" letter-spacing="-1.6">on one map.</text>
+
+  <text x="72" y="404" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="23" fill="#cbd5e1">Metro, suburban, monorail, RRTS, tram and bullet train.</text>
+
+  <g font-family="Helvetica Neue, Helvetica, Arial, sans-serif">
+    <text x="72" y="500" font-family="Georgia, 'Times New Roman', serif" font-size="34" fill="#ffffff">31</text>
+    <text x="72" y="525" font-size="10" font-weight="700" fill="#94a3b8" letter-spacing="2.2">SYSTEMS</text>
+
+    <text x="270" y="500" font-family="Georgia, 'Times New Roman', serif" font-size="34" fill="#ffffff">22</text>
+    <text x="270" y="525" font-size="10" font-weight="700" fill="#94a3b8" letter-spacing="2.2">CITIES</text>
+
+    <text x="468" y="500" font-family="Georgia, 'Times New Roman', serif" font-size="34" fill="#ffffff">104</text>
+    <text x="468" y="525" font-size="10" font-weight="700" fill="#94a3b8" letter-spacing="2.2">LINES</text>
+
+    <text x="666" y="500" font-family="Georgia, 'Times New Roman', serif" font-size="34" fill="#ffffff">1,407</text>
+    <text x="666" y="525" font-size="10" font-weight="700" fill="#94a3b8" letter-spacing="2.2">STATIONS</text>
+  </g>
+
+  <rect x="758" y="140" width="370" height="430" rx="30" fill="#0d1728" stroke="#26344c"/>
+  <rect x="758" y="140" width="370" height="430" rx="30" fill="url(#grid)"/>
+
+  <path d="M802 510V430Q802 410 822 410H892Q912 410 912 390V282Q912 262 932 262H1084" fill="none" stroke="#fb7185" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M802 282H862Q882 282 882 302V360Q882 380 902 380H1084" fill="none" stroke="#2dd4bf" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M832 510V462Q832 442 852 442H972Q992 442 992 422V330Q992 310 1012 310H1084" fill="none" stroke="#fbbf24" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <g fill="#0d1728" stroke="#ffffff" stroke-width="4">
+    <circle cx="802" cy="430" r="7"/>
+    <circle cx="912" cy="390" r="7"/>
+    <circle cx="932" cy="262" r="7"/>
+    <circle cx="882" cy="302" r="7"/>
+    <circle cx="902" cy="380" r="7"/>
+    <circle cx="852" cy="442" r="7"/>
+    <circle cx="992" cy="422" r="7"/>
+    <circle cx="1012" cy="310" r="7"/>
+  </g>
+  <g fill="#ffffff">
+    <circle cx="802" cy="282" r="5"/>
+    <circle cx="1084" cy="262" r="5"/>
+    <circle cx="1084" cy="380" r="5"/>
+    <circle cx="1084" cy="310" r="5"/>
+  </g>
+
+  <text x="72" y="590" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="15" fill="#64748b">metromapsindia.netlify.app</text>
+  <text x="1128" y="590" text-anchor="end" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13" fill="#64748b">OpenStreetMap · India Rail Info</text>
+</svg>

@@ -6,6 +6,10 @@ React 19 + TypeScript + Vite, `react-router-dom`, MapLibre GL 5, and
 OpenFreeMap Positron for the basemap. There is no server-side rendering: the
 Express server only serves the static build with an SPA fallback.
 
+The build writes meta-only HTML shells for `/about` and `/city/:slug` so
+crawlers see route-specific titles and descriptions. The page body is still
+rendered by React, and `usePageMeta` keeps the same tags current in the browser.
+
 Routes:
 
 - `/` — city cards, region filter, generated SVG network sketches.

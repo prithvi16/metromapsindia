@@ -12,6 +12,7 @@ export default function HomePage() {
   usePageMeta(
     "MetroMaps India — India's urban rail atlas",
     `${countryStats.systems} systems across ${countryStats.cities} cities: ${countryStats.lines} metro, suburban, monorail, tram, RRTS and bullet-train lines on one map.`,
+    { path: "/" },
   );
   const [params, setParams] = useSearchParams();
   const requested = params.get("region");

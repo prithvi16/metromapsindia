@@ -29,14 +29,13 @@ export default function SiteHeader({ breadcrumbs }: Props) {
           <Link
             to="/"
             className="brand"
-            aria-label="MetroMaps India home"
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
           >
-            <span className="brand__mark" aria-hidden="true">
-              ◉
-            </span>
+            <img className="brand__mark" src="/logo.svg" alt="" width="38" height="38" />
             <span className="brand__text">
-              <span className="brand__name">MetroMaps India</span>
+              <span className="brand__name">
+                MetroMaps <span className="brand__country">India</span>
+              </span>
               <span className="brand__tag">Urban rail, mapped</span>
             </span>
           </Link>

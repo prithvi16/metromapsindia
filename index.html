@@ -1,24 +1,89 @@
 <!doctype html>
-<html lang="en">
+<html lang="en-IN">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MetroMaps India — India's urban rail atlas</title>
     <meta
       name="description"
       content="MetroMaps India — an interactive atlas of metro, suburban, monorail, light rail, RRTS, bullet-train and tram lines across India."
     />
+    <link rel="canonical" href="https://metromapsindia.netlify.app/" />
+    <meta name="robots" content="index,follow,max-image-preview:large" />
+    <meta name="author" content="MetroMaps India" />
+    <meta name="theme-color" content="#e11d48" />
+    <meta name="color-scheme" content="light" />
+
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
+
+    <link rel="preconnect" href="https://tiles.openfreemap.org" crossorigin />
+
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="MetroMaps India" />
-    <meta property="og:title" content="MetroMaps India — urban rail atlas" />
+    <meta property="og:title" content="MetroMaps India — India's urban rail atlas" />
     <meta
       property="og:description"
-      content="Metro, suburban, monorail, light-rail and bullet-train lines across India on one map."
+      content="Metro, suburban, monorail, light-rail, RRTS, tram and bullet-train lines across India on one map."
     />
-    <meta name="twitter:card" content="summary" />
-    <title>MetroMaps India — urban rail atlas</title>
+    <meta property="og:url" content="https://metromapsindia.netlify.app/" />
+    <meta property="og:image" content="https://metromapsindia.netlify.app/og-image.png" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="MetroMaps India — India's urban rail atlas, with a stylised metro map"
+    />
+    <meta property="og:locale" content="en_IN" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="MetroMaps India — India's urban rail atlas" />
+    <meta
+      name="twitter:description"
+      content="Metro, suburban, monorail, light-rail, RRTS, tram and bullet-train lines across India on one map."
+    />
+    <meta name="twitter:image" content="https://metromapsindia.netlify.app/og-image.png" />
+    <meta
+      name="twitter:image:alt"
+      content="MetroMaps India — India's urban rail atlas, with a stylised metro map"
+    />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "@id": "https://metromapsindia.netlify.app/#website",
+        "url": "https://metromapsindia.netlify.app/",
+        "name": "MetroMaps India",
+        "description": "An interactive atlas of metro, suburban, monorail, light rail, RRTS, bullet-train and tram lines across India.",
+        "inLanguage": "en-IN",
+        "publisher": {
+          "@type": "Organization",
+          "name": "MetroMaps India",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://metromapsindia.netlify.app/logo.svg"
+          }
+        }
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
+    <noscript>
+      <main>
+        <h1>MetroMaps India</h1>
+        <p>
+          An interactive atlas of metro, suburban, monorail, light rail, RRTS, bullet-train and
+          tram lines across India.
+        </p>
+        <p><a href="/about">About MetroMaps India</a></p>
+      </main>
+    </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

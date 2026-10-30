@@ -1,4 +1,31 @@
-# SPA fallback: React Router owns /city/:slug and /about, so a refresh must
-# return the app shell instead of a 404. Netlify and Cloudflare Pages read this
-# file from the published build.
+# Pre-rendered meta shells for crawlers.
+/city/delhi    /city/delhi.html   200
+/city/gurugram    /city/gurugram.html   200
+/city/noida    /city/noida.html   200
+/city/meerut    /city/meerut.html   200
+/city/lucknow    /city/lucknow.html   200
+/city/kanpur    /city/kanpur.html   200
+/city/agra    /city/agra.html   200
+/city/jaipur    /city/jaipur.html   200
+/city/mumbai    /city/mumbai.html   200
+/city/navi-mumbai    /city/navi-mumbai.html   200
+/city/pune    /city/pune.html   200
+/city/nagpur    /city/nagpur.html   200
+/city/ahmedabad    /city/ahmedabad.html   200
+/city/indore    /city/indore.html   200
+/city/bhopal    /city/bhopal.html   200
+/city/bengaluru    /city/bengaluru.html   200
+/city/chennai    /city/chennai.html   200
+/city/hyderabad    /city/hyderabad.html   200
+/city/kochi    /city/kochi.html   200
+/city/kolkata    /city/kolkata.html   200
+/city/patna    /city/patna.html   200
+/city/surat    /city/surat.html   200
+/city/bhubaneswar    /city/bhubaneswar.html   200
+/city/visakhapatnam    /city/visakhapatnam.html   200
+/city/coimbatore    /city/coimbatore.html   200
+/city/mumbai-ahmedabad    /city/mumbai-ahmedabad.html   200
+/about    /about.html   200
+
+# SPA fallback for everything else.
 /*    /index.html   200

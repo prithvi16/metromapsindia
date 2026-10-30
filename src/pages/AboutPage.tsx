@@ -56,6 +56,13 @@ export default function AboutPage() {
   usePageMeta(
     "About — MetroMaps India",
     "How MetroMaps India combines OpenStreetMap and the India Rail Info atlas into one atlas of Indian urban rail.",
+    {
+      path: "/about",
+      breadcrumbs: [
+        { name: "Home", path: "/" },
+        { name: "About", path: "/about" },
+      ],
+    },
   );
   return (
     <>

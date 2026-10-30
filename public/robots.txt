@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://metromapsindia.netlify.app/sitemap.xml

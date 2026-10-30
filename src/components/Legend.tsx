@@ -38,6 +38,7 @@ export default function Legend({
 
   return (
     <aside className={`legend ${open ? "" : "legend--closed"}`} aria-label="Map layers">
+      <h2 className="sr-only">Map layers</h2>
       <button
         type="button"
         className="legend__handle"
