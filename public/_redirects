@@ -1,0 +1,4 @@
+# SPA fallback: React Router owns /city/:slug and /about, so a refresh must
+# return the app shell instead of a 404. Netlify and Cloudflare Pages read this
+# file from the published build.
+/*    /index.html   200

@@ -71,6 +71,8 @@ src/
     index.json              Summaries, stats, neighbours, SVG previews (eager)
     search.json             Compact search index (lazy, ⌘K only)
     shards/<slug>.json      One city's geometry + stations (lazy)
+public/
+  _redirects                SPA fallback for Netlify and Cloudflare Pages
 shared/
   schema.ts                 Zod schemas + inferred types — the data contract
 scripts/
@@ -180,6 +182,9 @@ Figures come from Wikipedia's
 `dist/` is fully static:
 
 - **Vercel / Netlify / Cloudflare Pages:** build `npm run build`, output `dist`.
+  `public/_redirects` is copied into the build and supplies the SPA fallback on
+  Netlify and Cloudflare Pages. Vercel ignores `_redirects`; add an equivalent
+  rewrite there if you deploy on Vercel.
 - **Render / Railway / Fly.io / a VPS:** `npm install && npm run build && npm start`
   — Express reads `PORT` and serves `dist/` with an SPA fallback.
 
