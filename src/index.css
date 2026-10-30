@@ -6,6 +6,9 @@
   --card: #ffffff;
   --accent: #e11d48;
   --header-h: 60px;
+  --shell-max: 1680px;
+  --gutter: clamp(16px, 1.4vw, 28px);
+  --prose-max: 800px;
 
   color-scheme: light;
   font-family:
@@ -56,9 +59,9 @@ h4 {
   align-items: center;
   gap: 20px;
   height: var(--header-h);
-  max-width: 1280px;
+  max-width: var(--shell-max);
   margin: 0 auto;
-  padding: 0 20px;
+  padding: 0 var(--gutter);
 }
 
 .brand {
@@ -90,6 +93,7 @@ h4 {
 .brand__name {
   font-size: 0.92rem;
   font-weight: 650;
+  white-space: nowrap;
 }
 
 .brand__tag {
@@ -298,9 +302,9 @@ h4 {
 /* ---------------- home ---------------- */
 
 .home {
-  max-width: 1280px;
+  max-width: var(--shell-max);
   margin: 0 auto;
-  padding: 0 20px 72px;
+  padding: 0 var(--gutter) 72px;
 }
 
 .hero {
@@ -543,9 +547,9 @@ a.city-card:hover {
 /* ---------------- city page ---------------- */
 
 .city-page {
-  max-width: 1440px;
+  max-width: var(--shell-max);
   margin: 0 auto;
-  padding: 20px 20px 56px;
+  padding: 20px var(--gutter) 56px;
 }
 
 .city-page__head {
@@ -573,6 +577,11 @@ a.city-card:hover {
   gap: 26px;
   margin: 0;
   flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.city-page__stats > div {
+  min-width: 0;
 }
 
 .city-page__stats dt {
@@ -590,12 +599,19 @@ a.city-card:hover {
 }
 
 .city-page__map {
+  --map-height: clamp(420px, 68vh, 780px);
   position: relative;
-  height: clamp(420px, 68vh, 780px);
+  height: var(--map-height);
   border-radius: 18px;
   overflow: hidden;
   border: 1px solid var(--line);
   background: #e8edf3;
+}
+
+@supports (height: 1dvh) {
+  .city-page__map {
+    --map-height: clamp(420px, 68dvh, 820px);
+  }
 }
 
 .map-shell {
@@ -947,9 +963,9 @@ a.city-card:hover {
 /* ---------------- prose pages ---------------- */
 
 .page {
-  max-width: 780px;
+  max-width: var(--prose-max);
   margin: 0 auto;
-  padding: 40px 20px 72px;
+  padding: 40px var(--gutter) 72px;
 }
 
 .page h1 {
@@ -1044,14 +1060,14 @@ a.city-card:hover {
   margin-top: auto;
   background: #0f172a;
   color: #cbd5e1;
-  padding: 44px 20px 22px;
+  padding: 44px var(--gutter) 22px;
 }
 
 .site-footer__inner {
   display: grid;
   grid-template-columns: 1.5fr 1fr;
   gap: 40px;
-  max-width: 1280px;
+  max-width: calc(var(--shell-max) - 2 * var(--gutter));
   margin: 0 auto;
 }
 
@@ -1133,7 +1149,7 @@ a.city-card:hover {
 }
 
 .site-footer__legal {
-  max-width: 1280px;
+  max-width: calc(var(--shell-max) - 2 * var(--gutter));
   margin: 32px auto 0;
   padding-top: 16px;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
@@ -1245,6 +1261,16 @@ a.city-card:hover {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .city-page__head {
+    align-items: flex-start;
+  }
+
+  .city-page__stats {
+    width: 100%;
+    justify-content: space-between;
+    gap: 12px 20px;
+  }
+
   .city-page__notes {
     grid-template-columns: 1fr;
     gap: 20px;
@@ -1275,11 +1301,11 @@ a.city-card:hover {
   }
 
   .city-page {
-    padding: 14px 12px 40px;
+    padding: 14px var(--gutter) 40px;
   }
 
   .city-page__map {
-    height: 62vh;
+    --map-height: max(360px, 62vh);
     border-radius: 14px;
   }
 
@@ -1299,5 +1325,57 @@ a.city-card:hover {
   .mode-list div {
     grid-template-columns: 1fr;
     gap: 2px;
+  }
+}
+
+@media (max-width: 560px) {
+  .city-page__head {
+    gap: 14px;
+  }
+
+  .city-page__head h1 {
+    font-size: 1.4rem;
+  }
+
+  .city-page__system {
+    font-size: 0.76rem;
+  }
+
+  .footer-cities__grid {
+    gap: 12px;
+  }
+
+  .site-footer__legal {
+    margin-top: 24px;
+  }
+}
+
+@media (max-width: 470px) {
+  .city-page__stats {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px 16px;
+  }
+}
+
+@media (max-width: 400px) {
+  .site-header__inner {
+    gap: 10px;
+  }
+
+  .site-nav {
+    gap: 4px;
+  }
+
+  .brand {
+    gap: 8px;
+  }
+}
+
+@supports (height: 1dvh) {
+  @media (max-width: 720px) {
+    .city-page__map {
+      --map-height: max(360px, 62dvh);
+    }
   }
 }
