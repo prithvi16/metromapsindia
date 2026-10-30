@@ -8,12 +8,19 @@ import {
   NavigationControl,
   Popup,
   ScaleControl,
+  setWorkerUrl,
 } from "maplibre-gl";
+import workerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?url";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { AllData, CityData, CityLine, CitySummary, Mode, Status } from "../lib/cities";
 import { lineLengthKm, linesGeoJson, MODE_META, STATUS_META, stationsGeoJson } from "../lib/cities";
 import { cityIndex } from "../lib/cityData";
+
+// MapLibre 6 resolves its worker from `import.meta.url` at runtime. Once Vite
+// bundles the library that points at the app chunk, where the worker is not
+// emitted, so hand MapLibre the URL Vite has hashed and copied for us.
+setWorkerUrl(workerUrl);
 
 const STYLE_URL = "https://tiles.openfreemap.org/styles/positron";
 

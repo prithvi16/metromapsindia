@@ -4,6 +4,7 @@ import CityMap from "../components/CityMap";
 import Legend from "../components/Legend";
 import SiteFooter from "../components/SiteFooter";
 import SiteHeader from "../components/SiteHeader";
+import { isChunkLoadError } from "../lib/chunkRecovery";
 import type { AllData, CityData, Mode, Status } from "../lib/cities";
 import { DEFAULT_HIDDEN_MODES, MODE_META, STATUS_ORDER } from "../lib/cities";
 import { findCity, loadCityView } from "../lib/cityData";
@@ -248,7 +249,23 @@ export default function CityPage() {
         </div>
 
         <div className="city-page__map">
-          {error && <p className="city-page__error">Could not load map data: {error}</p>}
+          {error && (
+            <p className="city-page__error">
+              Could not load map data: {error}
+              {isChunkLoadError(error) && (
+                <>
+                  {" "}
+                  <button
+                    type="button"
+                    className="city-page__reload"
+                    onClick={() => window.location.reload()}
+                  >
+                    Reload
+                  </button>
+                </>
+              )}
+            </p>
+          )}
           {city && all && (
             <>
               <CityMap
